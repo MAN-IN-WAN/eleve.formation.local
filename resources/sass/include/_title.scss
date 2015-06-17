@@ -1,0 +1,33 @@
+.x-title {
+  line-height: 2.1em;
+  font-size: 1.1em;
+  margin: 0 0.3em;
+  padding: 0 .3em;
+}
+
+h1, h2 {
+  padding: 8px;
+}
+h1 {
+  font-size: 90%;
+  background-color: white;
+  font-weight: 600;
+  border-bottom: 4px solid #1e93e4;
+  margin-bottom: 10px;
+}
+h2 {
+  font-size: 80%;
+  background-color: white;
+  font-weight: 400;
+  border-bottom: 4px solid #11598c;
+  margin-bottom: 10px;}
+
+.x-form-label-nowrap .x-form-label {
+  white-space: pre-wrap;
+}
+
+.x-field {
+  min-height: 2.5em;
+  background: #fff;
+  margin-bottom: 15px;
+}
