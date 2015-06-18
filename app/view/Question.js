@@ -188,7 +188,7 @@ Ext.define('eleve.view.Question', {
 
         //recupération du record
         var record = this._record;
-        var results = [];
+        var results = {};
 
         //Récupération du/des types questions
         var tqStore = Ext.getStore('TypeQuestions');
@@ -201,15 +201,15 @@ Ext.define('eleve.view.Question', {
                 case "1": //Jauge
                     //récupération de l'id
                     var jauge = $('#jauge-'+item.get('id'));
-                    results[item.get('id')] = jauge.val();
+                    results['qi_'+item.get('id')] = jauge.val();
                     break;
                 case "2": //Echelle
                     var echelle = Ext.getCmp('echelle-'+item.get('id'));
-                    results[item.get('id')] = echelle.getValue()[0];
+                    results['qi_'+item.get('id')] = echelle.getValue()[0];
                     break;
                 case "3": //Texte
                     var texte = Ext.getCmp('texte-'+item.get('id'));
-                    results[item.get('id')] = texte.getValue();
+                    results['qi_'+item.get('id')] = texte.getValue();
                     if (!texte.getValue().length&&
                         ((item.get('AfficheOui')&&me._lastBoolean&&me._lastBoolean.getValue())||
                         (me._lastBoolean&&!me._lastBoolean.getValue()&&item.get('AfficheNon'))||
@@ -221,7 +221,7 @@ Ext.define('eleve.view.Question', {
                     break;
                 case "4": //Booleen
                     var booleen = Ext.getCmp('booleen-'+item.get('id'));
-                    results[item.get('id')] = booleen.getValue();
+                    results['qi_'+item.get('id')] = booleen.getValue();
                     me._lastBoolean = booleen;
                     break;
                 case "5": //Sélection
@@ -230,7 +230,7 @@ Ext.define('eleve.view.Question', {
                         Ext.Msg.alert('Problème de saisie','Veuillez choisir un élément de la liste.');
                         me._error = true;
                     }
-                    results[item.get('id')] = selection[0].getGroupValue();
+                    results['qi_'+item.get('id')] = selection[0].getGroupValue();
                     break;
             }
         });

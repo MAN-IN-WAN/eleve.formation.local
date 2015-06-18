@@ -78,15 +78,15 @@ Ext.define('eleve.controller.Main', {
                 var nq = me.getNextQuestion();
                 var cnq = nq.getBloquage();
 
+                results.equipe = eleve.utils.Config.getSessionEquipe();
+                results.session = eleve.utils.Config.getSessionId();
                 //enregistrement des résultats
                 var url = eleve.utils.Config.getResultUrl();
                 Ext.Ajax.request({
                     url: url,
                     useDefaultXhrHeader: false,
                     method: 'POST',
-                    data: {
-                        result: results
-                    },
+                    params: results,
                     success: function(response, opts) {
                         var obj = Ext.decode(response.responseText);
                         if (obj.success){
