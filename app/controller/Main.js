@@ -18,7 +18,9 @@ Ext.define('eleve.controller.Main', {
         refs: {
             map: '[action=map]',
             mapMarker: '[action=mapMarker]',
-            nextButton: '[action=nextButton]'
+            nextButton: '[action=nextButton]',
+            confirm: '[action=confirm]',
+            panneauConfirm: '[action=panneauConfirm]'
         },
 
         control: {
@@ -30,6 +32,9 @@ Ext.define('eleve.controller.Main', {
             },
             nextButton: {
                 release: 'onNextButton'
+            },
+            confirm: {
+                release: 'saveReponse'
             }
         },
         routes: {
@@ -68,49 +73,61 @@ Ext.define('eleve.controller.Main', {
         //si erreur
         if (!results) return;
 
-        //affichage de la confirmation
-        Ext.Msg.confirm('Confirmez la saisie.','Etes-vous sur de valider votre saisie ? Vous ne pourrez pas revenir en arrière.',function (value){
-            if (value=="yes") {
-                //on vérifie la catégorie de bloquage
-                var cq = me.getCurrentQuestion();
-                var ccq = cq.getBloquage();
+        //affichage du panneau de confirmation
+        this.getPanneauConfirm().show();
+    },
+    saveReponse: function () {
+        var me = this;
 
-                var nq = me.getNextQuestion();
-                var cnq = nq.getBloquage();
+        //Vérification des données
+        var curview = this._indexViews['eleve.view.Question'];
+        var results = curview.getResults();
 
-                results.equipe = eleve.utils.Config.getSessionEquipe();
-                results.session = eleve.utils.Config.getSessionId();
-                //enregistrement des résultats
-                var url = eleve.utils.Config.getResultUrl();
-                Ext.Ajax.request({
-                    url: url,
-                    useDefaultXhrHeader: false,
-                    method: 'POST',
-                    params: results,
-                    success: function(response, opts) {
-                        var obj = Ext.decode(response.responseText);
-                        if (obj.success){
-                            console.log('OK OK');
-                        }
+        results.equipe = eleve.utils.Config.getSessionEquipe();
+        results.session = eleve.utils.Config.getSessionId();
 
-                    },
-                    failure: function(response, opts) {
-                        //suppression du masque
-                        console.log('Récupération de session erreur ' + response.status);
-                        Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');
-                    }
-                });
+        //fermeture du panneau
+        this.getPanneauConfirm().hide();
 
-
-                //Si il y a un bloquage et qu'il s'agit de la meme catégorie, alors il ne faut rien faire.
-                if ((!cnq&&!ccq)||(cnq&&ccq&&cnq.cat==ccq.cat))
-                    me.redirectTo('question/' + nq.get('id'));
-                else {
-                    me._currentQuestion = nq.get('Ordre');
-                    me.redirectTo('map');
+        //enregistrement des résultats
+        var url = eleve.utils.Config.getResultUrl();
+        Ext.Ajax.request({
+            url: url,
+            useDefaultXhrHeader: false,
+            method: 'POST',
+            params: results,
+            success: function(response, opts) {
+                var obj = Ext.decode(response.responseText);
+                if (obj.success){
+                    console.log('OK OK');
                 }
+
+            },
+            failure: function(response, opts) {
+                //suppression du masque
+                Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');
             }
-        })
+        });
+
+
+        //on vérifie la catégorie de bloquage
+        var cq = this.getCurrentQuestion();
+        var ccq = cq.getBloquage();
+
+        var nq = this.getNextQuestion();
+        if (!nq){
+            //redirection vers le message de fin
+            me.redirectTo('fin');
+        }
+        var cnq = nq.getBloquage();
+
+        //Si il y a un bloquage et qu'il s'agit de la meme catégorie, alors il ne faut rien faire.
+        if ((!cnq&&!ccq)||(cnq&&ccq&&cnq.cat==ccq.cat))
+            me.redirectTo('question/' + nq.get('id'));
+        else {
+            eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
+            me.redirectTo('map');
+        }
     },
     /**
      * getCurrentQuestion
@@ -118,15 +135,15 @@ Ext.define('eleve.controller.Main', {
      */
     getCurrentQuestion: function () {
         var q = Ext.getStore('Questions');
-        var nq = q.findRecord('Ordre', this._currentQuestion);
+        var nq = q.findRecord('Ordre', eleve.utils.Config.getCurrentQuestion());
         if (nq) {
             return nq;
         } else {
+            console.log('Impossible de trouver la question '+eleve.utils.Config.getCurrentQuestion());
             this.redirectTo('fin');
         }
     },
     /* Ordre de la question courante. */
-    _currentQuestion: 1,
     /**
      * getNextQuestion
      * recherche de la question suivante
@@ -134,12 +151,12 @@ Ext.define('eleve.controller.Main', {
      */
     getNextQuestion: function () {
         var q = Ext.getStore('Questions');
-        var nq = q.findRecord('Ordre', this._currentQuestion + 1);
+        var nq = q.findRecord('Ordre', parseInt(eleve.utils.Config.getCurrentQuestion()) + 1);
         if (nq) {
             return nq;
-        } else {
+        } /*else {
             Ext.Msg.alert('Erreur il n\'y pas de question suivante. Veuillez vérifier l\'ordre des questions...');
-        }
+        }*/
     },
     /********************************
      * NAVIGATION
@@ -220,7 +237,7 @@ Ext.define('eleve.controller.Main', {
     /********************************
      * LOADING
      * ******************************/
-     _thingsToLoad: 7,
+     _thingsToLoad: 6,
       onLoadStore: function (msg) {
           console.log('load store',this._thingsToLoad, msg);
           this._thingsToLoad--;
@@ -236,35 +253,89 @@ Ext.define('eleve.controller.Main', {
 
      showLoading: function () {
         console.log('showLoading');
-        var me  = this;
 
         //affichage de l'ecran de loading
         this.manageView(0, 'eleve.view.Loading');
 
+        //récupération de la session
+        this.getSession();
+    },
+    getSession: function(){
+        var me = this;
+        var curview = me._indexViews['eleve.view.Loading'];
+
+        //interrogation du serveur pour savoir si il y a une session en cours.
+        var url = eleve.utils.Config.getSessionUrl();
+        Ext.Ajax.request({
+            url: url,
+            useDefaultXhrHeader: false,
+            method: 'POST',
+            success: function(response, opts) {
+                var obj = Ext.decode(response.responseText);
+                if (obj.success){
+                    //affichage du texte de chargement
+                    curview.down('[action=loadingText]').setHtml('<h1>Chargement en cours...</h1>');
+
+                    //enregistrement des informations de session
+                    eleve.utils.Config.setSessionId(obj.id);
+                    eleve.utils.Config.setSessionName(obj.name);
+                    console.log('set session information',obj.id, obj.name);
+
+                    //chargement des stores
+                    me.loadStores();
+
+                }else{
+                    //reset de la configuration stockée
+                    if (eleve.utils.Config.getSessionId())
+                        eleve.utils.Config.resetSession();
+
+                    //affichage du texte attente de session
+                    curview.down('[action=loadingText]').setHtml('<h1>Attente d\'une session...</h1>');
+
+                    //aucune session disponible
+                    var task = Ext.create('Ext.util.DelayedTask', function() {
+                        me.getSession();
+                    }, this);
+
+                    //The function will start after 0 milliseconds - so we want to start instantly at first
+                    task.delay(1000);
+                }
+
+            },
+            failure: function(response, opts) {
+                //suppression du masque
+                console.log('Récupération de session erreur ' + response.status);
+                Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');
+            }
+        });
+    },
+    loadStores: function () {
+        var me = this;
+
         //chargement des stores
         var categories = Ext.getStore('Categories');
-         categories.on({
-             load: function () {
-                 me.onLoadStore('categories');
-                 categories.removeListener('load');
-             }
-         });
+        categories.on({
+            load: function () {
+                me.onLoadStore('categories');
+                categories.removeListener('load');
+            }
+        });
         categories.load();
         var maps = Ext.getStore('Maps');
-         maps.on({
-             load: function () {
-                 me.onLoadStore('maps');
-                 maps.removeListener('load');
-             }
-         });
+        maps.on({
+            load: function () {
+                me.onLoadStore('maps');
+                maps.removeListener('load');
+            }
+        });
         maps.load();
         var questions = Ext.getStore('Questions');
-         questions.on({
-             load: function () {
-                 me.onLoadStore('questions');
-                 questions.removeListener('load');
-             }
-         });
+        questions.on({
+            load: function () {
+                me.onLoadStore('questions');
+                questions.removeListener('load');
+            }
+        });
         questions.load();
         var typequestions = Ext.getStore('TypeQuestions');
         typequestions.on({
@@ -283,41 +354,13 @@ Ext.define('eleve.controller.Main', {
         });
         typequestionvaleurs.load();
         var typereponses = Ext.getStore('TypeReponses');
-         typereponses.on({
-             load: function () {
-                 me.onLoadStore('typereponses');
-                 typereponses.removeListener('load');
-             }
-         });
-        typereponses.load();
-
-
-        //interrogation du serveur pour savoir si il y a une session en cours.
-        var url = eleve.utils.Config.getSessionUrl();
-        Ext.Ajax.request({
-            url: url,
-            useDefaultXhrHeader: false,
-            method: 'POST',
-            success: function(response, opts) {
-                var obj = Ext.decode(response.responseText);
-                if (obj.success){
-                    //enregistrement des informations de session
-                    eleve.utils.Config.setSessionId(obj.id);
-                    eleve.utils.Config.setSessionName(obj.name);
-                    console.log('set session information',obj.id, obj.name);
-
-                    //redirection
-                    //me.redirectTo('setteam');
-                    me.onLoadStore('session');
-                }
-
-            },
-            failure: function(response, opts) {
-                //suppression du masque
-                console.log('Récupération de session erreur ' + response.status);
-                Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');
+        typereponses.on({
+            load: function () {
+                me.onLoadStore('typereponses');
+                typereponses.removeListener('load');
             }
         });
+        typereponses.load();
     },
     showRoot: function () {
         this.redirectTo('loading');
@@ -334,6 +377,7 @@ Ext.define('eleve.controller.Main', {
             return;
         }
         var question = this.getCurrentQuestion();
+
         var position = question.getMapPosition();
         var curview = this.manageView(0, 'eleve.view.Map');
         curview.setPosition(position);
@@ -347,7 +391,7 @@ Ext.define('eleve.controller.Main', {
         var ficheview = this.manageView(1, 'eleve.view.Question');
         var questionStore = Ext.getStore('Questions');
         var record = questionStore.getById(id);
-        this._currentQuestion = record.get('Ordre');
+        eleve.utils.Config.setCurrentQuestion(record.get('Ordre'));
         ficheview.setRecord(record);
     }
 });

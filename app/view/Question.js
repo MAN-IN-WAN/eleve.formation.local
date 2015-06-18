@@ -6,7 +6,8 @@ Ext.define('eleve.view.Question', {
         'Ext.Img',
         'Ext.field.Slider',
         'Ext.form.TextArea',
-        'Ext.field.Toggle'
+        'Ext.field.Toggle',
+        'Ext.ActionSheet'
     ],
     config: {
         title: 'Carte Pédagogique',
@@ -15,6 +16,31 @@ Ext.define('eleve.view.Question', {
                 docked: 'top',
                 xtype: 'titlebar',
                 title: eleve.utils.Config.getAppTitle()
+            },
+            {
+                action: 'panneauConfirm',
+                xtype: 'actionsheet',
+                text: 'Etes-vous sûr ?',
+                hidden: true,
+                items: [
+                    {
+                        text: 'Oui',
+                        ui  : 'confirm',
+                        action: 'confirm',
+                        handler: function () {
+                            this.up('[xtype=question]').down('[action=scrollableContainer]').getScrollable().getScroller().scrollTo(0,0,true);
+                            this.up('[action=panneauConfirm]').hide();
+                        }
+                    },
+                    {
+                        ui: 'decline',
+                        text: 'Non',
+                        handler: function () {
+                            this.up('[xtype=question]').down('[action=scrollableContainer]').getScrollable().getScroller().scrollTo(0,0,true);
+                            this.up('[action=panneauConfirm]').hide();
+                        }
+                    }
+                ]
             },
             {
                 xtype: 'panel',
@@ -39,10 +65,8 @@ Ext.define('eleve.view.Question', {
                     {
                         xtype: 'button',
                         action: 'nextButton',
-                        text: 'Suivant',
-                        handler: function (){
-                            this.up('[action=scrollableContainer]').getScrollable().getScroller().scrollTo(0,0,true);
-                        }
+                        text: 'Confirmer',
+                        ui: 'decline'
                     }
                 ]
             }

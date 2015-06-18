@@ -14,7 +14,8 @@ Ext.application({
 
     requires: [
         'Ext.MessageBox',
-        'eleve.utils.Config'
+        'eleve.utils.Config',
+        'Ext.util.DelayedTask'
     ],
     models: [
         'Categorie',

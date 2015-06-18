@@ -22,6 +22,10 @@ Ext.define('eleve.utils.Config', {
         sessionId: null,
         sessionName: null,
         sessionEquipe: null,
+        /*
+         * CurrentQuestion
+         */
+        currentQuestion: null,
         /**
          * views
          */
@@ -53,8 +57,18 @@ Ext.define('eleve.utils.Config', {
     updateSessionName: function (o) {
         localStorage.setItem('sessionname',o);
     },
+    updateCurrentQuestion: function (o) {
+        if (o!=null) {
+            console.log('current question', o);
+            localStorage.setItem('currentquestion', o);
+        }else{
+            this.callParent(1);
+            localStorage.setItem('currentquestion', 1);
+        }
+    },
     initSession: function () {
         //récupération du storage local
+        this.setCurrentQuestion(localStorage.getItem('currentquestion'));
         this.setSessionEquipe(localStorage.getItem('equipe'));
         this.setSessionName(localStorage.getItem('sessionname'));
         this.setSessionId(localStorage.getItem('sessionid'));
@@ -63,7 +77,7 @@ Ext.define('eleve.utils.Config', {
         if (this.getSessionEquipe()>0&&this.getSessionId()>0) {
             this.setSessionActive(true);
         }
-        console.log('session detail ',this.getSessionEquipe(),this.getSessionId(),this.getSessionName(),this.getSessionActive());
+        console.log('session detail ',this.getSessionEquipe(),this.getSessionId(),this.getSessionName(),this.getSessionActive(),this.getCurrentQuestion());
 
         //vérification de la validité serveur
         if (this.getSessionActive()) {
@@ -103,6 +117,7 @@ Ext.define('eleve.utils.Config', {
         localStorage.removeItem('equipe');
         localStorage.removeItem('sessionid');
         localStorage.removeItem('sessionname');
+        localStorage.removeItem('currentquestion');
 
         //reset local vars
         this.setSessionEquipe(null);

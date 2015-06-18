@@ -24,12 +24,8 @@ Ext.define('eleve.view.Map', {
                         html: '<i class="fa fa-map-marker fa-6">Vous êtes ici</i>',
                         style: 'position:absolute; z-index:10000; top:50%; left:50%;',
                         action: 'mapMarker'
-                    },
-                    {
+                    },{
                         xtype: 'image',
-                        width: 1024,
-                        height: 711,
-                        src: _prefixDomain+'/Home/1/Formation/Map/BM_Manager_INTER_05_06_0.jpg.limit.1024x1024.jpg',
                         action: 'map'
                     }
                 ]
@@ -47,42 +43,50 @@ Ext.define('eleve.view.Map', {
         var scale = 1;
         var me = this;
         var screenw = window.innerWidth;
-        var screenh = window.innerHeight;
+        var screenh = window.innerHeight - 50;
         console.log('position',position);
 
+        this.down('[action=map]').destroy();
+
         //chargement de la carte
-        var map = this.down('[action=map]');
-        map.setSrc(position.map.url);
-        map.setWidth(position.map.width);
-        map.setHeight(position.map.height);
+        var map = this.down('[action=containerMap]').add({
+            xtype: 'image',
+            width: position.map.width,
+            height: position.map.height,
+            src: position.map.url,
+            action: 'map'
+        });
 
         scale = screenh/position.map.height;
 
-        /*map.setWidth(position.map.width*scale);
-        map.setHeight(screenh);
-        map.setLeft((screenw-(position.map.width*scale))/2);*/
+        var allX = Math.floor((position.map.width/2) - (((position.map.width) - (screenw/scale))/2));
+        var allY = Math.floor (position.map.height/2);
 
         move(map.element.dom)
-            .to((((position.map.width*scale)/2)-screenw), -screenh/2)
+            .to(-Math.floor(position.map.width/2), -Math.floor(position.map.height/2))
             .scale(scale)
-            .duration(0)
+            .to(allX , allY)
+            .duration(1)
             .end();
-
-        map.on({
-            painted: function () {
-                //positionnement du scroll
-                 var posx = parseInt(parseFloat(position.posx)*(parseInt(position.map.width)-screenw));
-                 var posy = parseInt(parseFloat(position.posy)*(parseInt(position.map.height)-screenh));
+        map.on('painted',
+            function () {
+                console.log('painted map', scale);
                 scale = 1;
+                allX = -(position.map.width / 2) + (screenw * scale) / 2;
+                allY = -(position.map.height / 2) + (screenh * scale) / 2;
 
+                //positionnement du scroll
+                var posx = allX - ((position.posx - 0.5) * (position.map.width - screenw*scale));
+                var posy = allY - ((position.posy-0.5) * (position.map.height - screenh*scale));
+
+                console.log(position.posx,position.posy,allX, allY, posx,posy,'posy',Math.abs(position.posy-0.5), 'débattement',(position.map.height - screenh*scale));
                 move(map.element.dom)
-                    .to(-posx*scale, -posy*scale)
                     .scale(scale)
+                    .to(posx, posy)
                     .duration(3000)
                     .end();
             }
-        });
-
+        ,this,{single: true});
         //evenement click du titre
         var tt = $('.fa.fa-map-marker.fa-6');
         console.log('mon maker ', tt);
