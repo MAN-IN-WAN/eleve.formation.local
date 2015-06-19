@@ -128,7 +128,7 @@ Ext.define('eleve.controller.Main', {
             me.redirectTo('question/' + nq.get('id'));
         else {
             eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
-            me.redirectTo('map');
+            me.redirectTo('wait');
         }
     },
     /**
@@ -169,10 +169,10 @@ Ext.define('eleve.controller.Main', {
      */
     onBackTap: function ( button, e, eOpts ) {
         console.log('itemtap back');
-        var appHistory = this.getApplication().getHistory();
+        //var appHistory = this.getApplication().getHistory();
 
         // fire previous route
-        appHistory.back();
+        //appHistory.back();
 
         // prevent the default navigation view
         // back button behavior from firing
@@ -196,9 +196,9 @@ Ext.define('eleve.controller.Main', {
             this.redirectTo('loading');
 
         //si equipe dejà définie sur la page equipê alors redirection map
-        if ((name_view=="eleve.view.SetEquipe"||name_view=="eleve.view.Loading")&&eleve.utils.Config.getSessionActive()&&eleve.utils.Config.getLoaded()){
-            console.log('session active OK redirect to map');
-            this.redirectTo('map');
+        if ((name_view=="eleve.view.SetEquipe"||name_view=="eleve.view.Loading")&&eleve.utils.Config.getSessionActive()&&eleve.utils.Config.getLoaded()&&!this._etapeChecking){
+            console.log('session active OK redirect to checkEtape');
+            this.redirectTo('wait');
             return;
         }
 
@@ -246,6 +246,7 @@ Ext.define('eleve.controller.Main', {
           if (this._thingsToLoad==0){
               eleve.utils.Config.setLoaded(true);
               this.redirectTo('setteam');
+              this._loading = false;
               console.log('***** LOADED *****');
           }
      },
@@ -253,22 +254,32 @@ Ext.define('eleve.controller.Main', {
      * ROUTING
      * ******************************/
 
+    _etapeChecking: false,
     showWait: function () {
+        if (!eleve.utils.Config.getLoaded()) {
+            this.redirectTo('loading');
+            return;
+        }
+        this._etapeChecking = true;
         console.log('showWait');
 
         //affichage de l'ecran de loading
         this.manageView(0, 'eleve.view.Loading');
 
         //affichage du texte attente de session
-        var curview = me._indexViews['eleve.view.Loading'];
+        var curview = this._indexViews['eleve.view.Loading'];
         curview.down('[action=loadingText]').setHtml('<h1>Attente de l\'animateur...</h1><h2>Reprenez votre parcours.</h2>');
 
         //récupération de la session
         this.checkEtape();
     },
     checkEtape: function(){
+        console.log('check etape');
         var me = this;
         var curview = me._indexViews['eleve.view.Loading'];
+
+        var currentQuestion = me.getCurrentQuestion();
+        console.log('check etape',currentQuestion);
 
         //interrogation du serveur pour savoir si l'etape est debloquée
         var url = eleve.utils.Config.getCheckEtapeUrl();
@@ -278,34 +289,26 @@ Ext.define('eleve.controller.Main', {
             params: {
                 session: eleve.utils.Config.getSessionId(),
                 equipe: eleve.utils.Config.getSessionEquipe(),
-                question: eleve.utils.Config.getCurrentQuestion()
+                question:currentQuestion.get('id')
             },
             method: 'POST',
             success: function(response, opts) {
                 var obj = Ext.decode(response.responseText);
                 if (obj.success){
-                    //affichage du texte de chargement
-                    curview.down('[action=loadingText]').setHtml('<h1>Chargement en cours...</h1>');
+                    this._etapeChecking = false;
 
-                    //enregistrement des informations de session
-                    eleve.utils.Config.setSessionId(obj.id);
-                    eleve.utils.Config.setSessionName(obj.name);
-                    console.log('set session information',obj.id, obj.name);
-
-                    //chargement des stores
-                    me.loadStores();
+                    //affichage de la map
+                    me.redirectTo('map');
 
                 }else{
-                    //reset de la configuration stockée
-                    if (eleve.utils.Config.getSessionId())
+                    if (obj.reset){
+                        //reset de la config
                         eleve.utils.Config.resetSession();
-
-                    //affichage du texte attente de session
-                    curview.down('[action=loadingText]').setHtml('<h1>Attente d\'une session...</h1>');
+                    }
 
                     //aucune session disponible
                     var task = Ext.create('Ext.util.DelayedTask', function() {
-                        me.getSession();
+                        me.checkEtape();
                     }, this);
 
                     //The function will start after 0 milliseconds - so we want to start instantly at first
@@ -378,7 +381,10 @@ Ext.define('eleve.controller.Main', {
             }
         });
     },
+    _loading: false,
     loadStores: function () {
+        if (this._loading) return;
+        this._loading = true;
         var me = this;
 
         //chargement des stores
@@ -438,6 +444,10 @@ Ext.define('eleve.controller.Main', {
         this.manageView(0, 'eleve.view.SetEquipe');
     },
     showFin: function () {
+        if (!eleve.utils.Config.getLoaded()) {
+            this.redirectTo('loading');
+            return;
+        }
         this.manageView(0, 'eleve.view.Fin');
     },
     showMap: function () {
@@ -457,7 +467,7 @@ Ext.define('eleve.controller.Main', {
             this.redirectTo('loading');
             return;
         }
-        var ficheview = this.manageView(1, 'eleve.view.Question');
+        var ficheview = this.manageView(0, 'eleve.view.Question');
         var questionStore = Ext.getStore('Questions');
         var record = questionStore.getById(id);
         eleve.utils.Config.setCurrentQuestion(record.get('Ordre'));

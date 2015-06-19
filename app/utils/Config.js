@@ -62,14 +62,18 @@ Ext.define('eleve.utils.Config', {
         }
     },
     updateSessionId: function (o) {
-        localStorage.setItem('sessionid',o);
+        console.log('sessionid',o);
+        if (o!=undefined)
+            localStorage.setItem('sessionid',o);
     },
     updateSessionName: function (o) {
-        localStorage.setItem('sessionname',o);
+        console.log('sessionname',o);
+        if (o!=undefined)
+            localStorage.setItem('sessionname',o);
     },
     initSession: function () {
+        console.log('localstorage',localStorage.getItem('equipe'),localStorage.getItem('sessionname'),localStorage.getItem('sessionid'));
         //récupération du storage local
-        //this.setCurrentQuestion(localStorage.getItem('currentquestion'));
         this.setSessionEquipe(localStorage.getItem('equipe'));
         this.setSessionName(localStorage.getItem('sessionname'));
         this.setSessionId(localStorage.getItem('sessionid'));
