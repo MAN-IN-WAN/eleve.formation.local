@@ -42,6 +42,7 @@ Ext.define('eleve.controller.Main', {
             'loading': 'showLoading',
             'setteam': 'showSetEquipe',
             'map': 'showMap',
+            'wait': 'showWait',
             'fin': 'showFin',
             'question/:id': 'showQuestion'
         }
@@ -118,6 +119,7 @@ Ext.define('eleve.controller.Main', {
         if (!nq){
             //redirection vers le message de fin
             me.redirectTo('fin');
+            return;
         }
         var cnq = nq.getBloquage();
 
@@ -251,7 +253,74 @@ Ext.define('eleve.controller.Main', {
      * ROUTING
      * ******************************/
 
-     showLoading: function () {
+    showWait: function () {
+        console.log('showWait');
+
+        //affichage de l'ecran de loading
+        this.manageView(0, 'eleve.view.Loading');
+
+        //affichage du texte attente de session
+        var curview = me._indexViews['eleve.view.Loading'];
+        curview.down('[action=loadingText]').setHtml('<h1>Attente de l\'animateur...</h1><h2>Reprenez votre parcours.</h2>');
+
+        //récupération de la session
+        this.checkEtape();
+    },
+    checkEtape: function(){
+        var me = this;
+        var curview = me._indexViews['eleve.view.Loading'];
+
+        //interrogation du serveur pour savoir si l'etape est debloquée
+        var url = eleve.utils.Config.getCheckEtapeUrl();
+        Ext.Ajax.request({
+            url: url,
+            useDefaultXhrHeader: false,
+            params: {
+                session: eleve.utils.Config.getSessionId(),
+                equipe: eleve.utils.Config.getSessionEquipe(),
+                question: eleve.utils.Config.getCurrentQuestion()
+            },
+            method: 'POST',
+            success: function(response, opts) {
+                var obj = Ext.decode(response.responseText);
+                if (obj.success){
+                    //affichage du texte de chargement
+                    curview.down('[action=loadingText]').setHtml('<h1>Chargement en cours...</h1>');
+
+                    //enregistrement des informations de session
+                    eleve.utils.Config.setSessionId(obj.id);
+                    eleve.utils.Config.setSessionName(obj.name);
+                    console.log('set session information',obj.id, obj.name);
+
+                    //chargement des stores
+                    me.loadStores();
+
+                }else{
+                    //reset de la configuration stockée
+                    if (eleve.utils.Config.getSessionId())
+                        eleve.utils.Config.resetSession();
+
+                    //affichage du texte attente de session
+                    curview.down('[action=loadingText]').setHtml('<h1>Attente d\'une session...</h1>');
+
+                    //aucune session disponible
+                    var task = Ext.create('Ext.util.DelayedTask', function() {
+                        me.getSession();
+                    }, this);
+
+                    //The function will start after 0 milliseconds - so we want to start instantly at first
+                    task.delay(5000);
+                }
+
+            },
+            failure: function(response, opts) {
+                //suppression du masque
+                console.log('Récupération de session erreur ' + response.status);
+                Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');
+            }
+        });
+    },
+    showLoading: function () {
         console.log('showLoading');
 
         //affichage de l'ecran de loading
@@ -298,7 +367,7 @@ Ext.define('eleve.controller.Main', {
                     }, this);
 
                     //The function will start after 0 milliseconds - so we want to start instantly at first
-                    task.delay(1000);
+                    task.delay(5000);
                 }
 
             },

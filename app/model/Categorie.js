@@ -60,5 +60,23 @@ Ext.define('eleve.model.Categorie', {
         var cat = catStore.getById(this.get('CategorieId'));
         if (cat)
             return cat.getBloquage();
+    },
+    /**
+     * getPosition
+     * Recherche la position sur la carte
+     */
+    getPosition: function (){
+        if (this.get('Position')){
+            //c'est la catégorie significative
+            return {
+                cat: this.get('id')
+            };
+        }
+        //recherche de la categorie significative de manière récursive
+        var catStore = Ext.getStore('Categories');
+        catStore.clearFilter();
+        var cat = catStore.getById(this.get('CategorieId'));
+        if (cat)
+            return cat.getPosition();
     }
 });

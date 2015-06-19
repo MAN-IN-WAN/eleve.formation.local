@@ -1,6 +1,6 @@
 /*
 Syntax error: File to import not found or unreadable: sencha-touch/default.
-              Load path: /home/enguer/PhpstormProjects/eleve.formation.local/resources/sass
+              Load path: /home/enguer/Sites/eleve.formation.local/resources/sass
         on line 4 of app.scss
 
 1: // The following two lines import the default Sencha Touch theme. If you are building
@@ -50,4 +50,4 @@ app.scss:4
 body:before {
   white-space: pre;
   font-family: monospace;
-  content: "Syntax error: File to import not found or unreadable: sencha-touch/default.\A               Load path: /home/enguer/PhpstormProjects/eleve.formation.local/resources/sass\A         on line 4 of app.scss\A \A 1: // The following two lines import the default Sencha Touch theme. If you are building\A 2: // a new theme, remove them and the add your own CSS on top of the base CSS (which\A 3: // is already included in your app.json file).\A 4: @import 'sencha-touch/default';\A 5: @import 'sencha-touch/default/all';\A 6: \A 7: //global\A 8: @import 'include/title';\A 9: @import 'include/breadcrumb';"; }
+  content: "Syntax error: File to import not found or unreadable: sencha-touch/default.\A               Load path: /home/enguer/Sites/eleve.formation.local/resources/sass\A         on line 4 of app.scss\A \A 1: // The following two lines import the default Sencha Touch theme. If you are building\A 2: // a new theme, remove them and the add your own CSS on top of the base CSS (which\A 3: // is already included in your app.json file).\A 4: @import 'sencha-touch/default';\A 5: @import 'sencha-touch/default/all';\A 6: \A 7: //global\A 8: @import 'include/title';\A 9: @import 'include/breadcrumb';"; }

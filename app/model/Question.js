@@ -27,5 +27,15 @@ Ext.define('eleve.model.Question', {
         var catStore = Ext.getStore('Categories');
         var cat = catStore.getById(this.get('CategorieId'));
         return  cat.getBloquage();
+    },
+    /**
+     * getPosition
+     * Recherche la catégorie de position
+     */
+    getPosition: function (){
+        //recherche de la categorie significative de manière récursive
+        var catStore = Ext.getStore('Categories');
+        var cat = catStore.getById(this.get('CategorieId'));
+        return  cat.getPosition();
     }
 });

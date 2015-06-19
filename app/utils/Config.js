@@ -15,6 +15,7 @@ Ext.define('eleve.utils.Config', {
         sessionCheckUrl: _prefixDomain+'/Formation/Session/checkSession.json',
         submitTeamUrl: _prefixDomain+'/Formation/Session/registerTeam.json',
         resultUrl: _prefixDomain+'/Formation/Session/setResult.json',
+        checkEtapeUrl: _prefixDomain+'/Formation/Session/checkEtape.json',
         /**
          * session definition
          */
@@ -22,10 +23,7 @@ Ext.define('eleve.utils.Config', {
         sessionId: null,
         sessionName: null,
         sessionEquipe: null,
-        /*
-         * CurrentQuestion
-         */
-        currentQuestion: null,
+        currentQuestion: -1,
         /**
          * views
          */
@@ -44,6 +42,18 @@ Ext.define('eleve.utils.Config', {
         storeTypeQuestionValeur:  _prefixDomain+'/Formation/Session/getTypeQuestionValeurs.json',
         storeTypeReponse:  _prefixDomain+'/Formation/Session/getTypeReponses.json'
     },
+    updateCurrentQuestion: function (o) {
+        console.log('current question', o);
+        if (o>0) {
+            localStorage.setItem('currentquestion', o);
+        }else if (o==-1){
+            var p = localStorage.getItem('currentquestion');
+            console.log('storage question', p);
+            if (parseInt(p)>parseInt(o)) {
+                this.setCurrentQuestion(p);
+            }else this.setCurrentQuestion(1);
+        }
+    },
     updateSessionEquipe: function (o) {
         localStorage.setItem('equipe',o);
         //vérification de la validité
@@ -57,18 +67,9 @@ Ext.define('eleve.utils.Config', {
     updateSessionName: function (o) {
         localStorage.setItem('sessionname',o);
     },
-    updateCurrentQuestion: function (o) {
-        if (o!=null) {
-            console.log('current question', o);
-            localStorage.setItem('currentquestion', o);
-        }else{
-            this.callParent(1);
-            localStorage.setItem('currentquestion', 1);
-        }
-    },
     initSession: function () {
         //récupération du storage local
-        this.setCurrentQuestion(localStorage.getItem('currentquestion'));
+        //this.setCurrentQuestion(localStorage.getItem('currentquestion'));
         this.setSessionEquipe(localStorage.getItem('equipe'));
         this.setSessionName(localStorage.getItem('sessionname'));
         this.setSessionId(localStorage.getItem('sessionid'));
@@ -77,7 +78,7 @@ Ext.define('eleve.utils.Config', {
         if (this.getSessionEquipe()>0&&this.getSessionId()>0) {
             this.setSessionActive(true);
         }
-        console.log('session detail ',this.getSessionEquipe(),this.getSessionId(),this.getSessionName(),this.getSessionActive(),this.getCurrentQuestion());
+        console.log('session detail XXX',this.getSessionEquipe(),this.getSessionId(),this.getSessionName(),this.getSessionActive(),this.getCurrentQuestion());
 
         //vérification de la validité serveur
         if (this.getSessionActive()) {
