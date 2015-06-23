@@ -45,9 +45,21 @@ Ext.define('eleve.utils.Config', {
     updateCurrentQuestion: function (o) {
         console.log('current question', o);
         if (o>0) {
-            localStorage.setItem('currentquestion', o);
+            try {
+                if (window.localStorage) {
+                    localStorage.setItem('currentquestion', o);
+                }
+            } catch (e) {
+                // traitement lors de l'exception
+            }
         }else if (o==-1){
-            var p = localStorage.getItem('currentquestion');
+            try {
+                if (window.localStorage) {
+                    var p = localStorage.getItem('currentquestion');
+                }
+            } catch (e) {
+                // traitement lors de l'exception
+            }
             console.log('storage question', p);
             if (parseInt(p)>parseInt(o)) {
                 this.setCurrentQuestion(p);
@@ -55,24 +67,48 @@ Ext.define('eleve.utils.Config', {
         }
     },
     updateSessionEquipe: function (o) {
-        localStorage.setItem('equipe',o);
+        try {
+            if (window.localStorage) {
+                localStorage.setItem('equipe',o);
+            }
+        } catch (e) {
+            // traitement lors de l'exception
+        }
         //vérification de la validité
         if (this.getSessionEquipe()>0&&this.getSessionId()>0) {
             this.setSessionActive(true);
         }
     },
     updateSessionId: function (o) {
-        localStorage.setItem('sessionid',o);
+        try {
+            if (window.localStorage) {
+                localStorage.setItem('sessionid',o);
+            }
+        } catch (e) {
+            // traitement lors de l'exception
+        }
     },
     updateSessionName: function (o) {
-        localStorage.setItem('sessionname',o);
+        try {
+            if (window.localStorage) {
+                localStorage.setItem('sessionname',o);
+            }
+        } catch (e) {
+            // traitement lors de l'exception
+        }
     },
     initSession: function () {
         //récupération du storage local
         //this.setCurrentQuestion(localStorage.getItem('currentquestion'));
-        this.setSessionEquipe(localStorage.getItem('equipe'));
-        this.setSessionName(localStorage.getItem('sessionname'));
-        this.setSessionId(localStorage.getItem('sessionid'));
+        try {
+            if (window.localStorage) {
+                this.setSessionEquipe(localStorage.getItem('equipe'));
+                this.setSessionName(localStorage.getItem('sessionname'));
+                this.setSessionId(localStorage.getItem('sessionid'));
+            }
+        } catch (e) {
+            // traitement lors de l'exception
+        }
 
         //vérification de la validité
         if (this.getSessionEquipe()>0&&this.getSessionId()>0) {
