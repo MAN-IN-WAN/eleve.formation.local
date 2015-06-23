@@ -38,7 +38,8 @@ Ext.application({
         'SetEquipe',
         'Map',
         'Question',
-        'Fin'
+        'Fin',
+        'Wait'
     ],
     controllers: [
         'Main',

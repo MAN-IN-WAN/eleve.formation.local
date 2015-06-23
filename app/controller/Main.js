@@ -264,11 +264,7 @@ Ext.define('eleve.controller.Main', {
         console.log('showWait');
 
         //affichage de l'ecran de loading
-        this.manageView(0, 'eleve.view.Loading');
-
-        //affichage du texte attente de session
-        var curview = this._indexViews['eleve.view.Loading'];
-        curview.down('[action=loadingText]').setHtml('<h1>Attente de l\'animateur...</h1><h2>Reprenez votre parcours.</h2>');
+        this.manageView(0, 'eleve.view.Wait');
 
         //récupération de la session
         this.checkEtape();
@@ -276,7 +272,6 @@ Ext.define('eleve.controller.Main', {
     checkEtape: function(){
         console.log('check etape');
         var me = this;
-        var curview = me._indexViews['eleve.view.Loading'];
 
         var currentQuestion = me.getCurrentQuestion();
         console.log('check etape',currentQuestion);

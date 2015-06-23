@@ -24,7 +24,7 @@ Ext.define('eleve.view.Question', {
                 hidden: true,
                 items: [
                     {
-                        text: 'Oui',
+                        text: 'Etes-vous sur ?     OUI',
                         ui  : 'confirm',
                         action: 'confirm',
                         handler: function () {
@@ -34,7 +34,7 @@ Ext.define('eleve.view.Question', {
                     },
                     {
                         ui: 'decline',
-                        text: 'Non',
+                        text: 'Etes-vous sur ?     NON',
                         handler: function () {
                             this.up('[xtype=question]').down('[action=scrollableContainer]').getScrollable().getScroller().scrollTo(0,0,true);
                             this.up('[action=panneauConfirm]').hide();
@@ -151,6 +151,7 @@ Ext.define('eleve.view.Question', {
                             temp.hidden = true;
                         }
                         me.down('[action=questionContainer]').add(temp);
+                        Ext.getCmp('texte-'+item.get('id')).focus();
                         break;
                     case "4": //Booleen
                         me.down('[action=questionContainer]').add({

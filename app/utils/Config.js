@@ -6,7 +6,7 @@ Ext.define('eleve.utils.Config', {
         /**
          * global config
          */
-        appTitle: 'EDF',
+        appTitle: 'ERDF',
         loaded: false,
         /**
          * Urls
