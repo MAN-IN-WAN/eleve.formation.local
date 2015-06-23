@@ -15,7 +15,7 @@ Ext.define('eleve.view.Loading', {
             },
             {
                 width: '100%',
-                style: 'margin-top: 65%;text-align: center;',
+                style: 'margin-top: 200px;text-align: center;',
                 action: 'loadingText',
                 html: '<h1>Chargement en cours ...</h1>'
             }

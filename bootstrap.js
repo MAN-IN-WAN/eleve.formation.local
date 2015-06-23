@@ -791,7 +791,8 @@ Ext.ClassManager.addNameAlternateMappings({
   "eleve.view.Loading": [],
   "eleve.view.Map": [],
   "eleve.view.Question": [],
-  "eleve.view.SetEquipe": []
+  "eleve.view.SetEquipe": [],
+  "eleve.view.Wait": []
 });
 
 Ext.ClassManager.addNameAliasMappings({
@@ -1787,6 +1788,9 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "eleve.view.SetEquipe": [
     "widget.setteam"
+  ],
+  "eleve.view.Wait": [
+    "widget.loading"
   ]
 });
 

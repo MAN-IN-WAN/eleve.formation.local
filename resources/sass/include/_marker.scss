@@ -25,3 +25,30 @@
   text-align: center;
   color: #AC0239;
 }
+
+.fa.fa-users.fa-6 {
+  text-align: center;
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: 29px;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transform: translate(0, 0);
+  color: #11598c;
+  /*text-shadow: 0px 0px 14px #5f5f5f;*/
+  box-shadow: 0px 0px 14px #5f5f5f;
+  margin-left: -85px;
+  margin-top: -100px;
+  max-width: 200px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+}
+
+.fa.fa-users:before {
+  font-size: 4em;
+  display: block;
+  text-align: center;
+  color: #AC0239;
+}
