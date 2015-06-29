@@ -21,6 +21,9 @@ Ext.define('eleve.view.Question', {
                 action: 'panneauConfirm',
                 xtype: 'actionsheet',
                 text: 'Etes-vous sûr ?',
+                showAnimation : null,
+                hideAnimation : null,
+                hideOnMaskTap: true,
                 hidden: true,
                 items: [
                     {

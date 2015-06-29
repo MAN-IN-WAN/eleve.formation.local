@@ -75,6 +75,8 @@ Ext.define('eleve.controller.Main', {
         if (!results) return;
 
         //affichage du panneau de confirmation
+        Ext.Msg.defaultAllowedConfig.showAnimation = false;
+        Ext.Msg.defaultAllowedConfig.hideAnimation = false;
         this.getPanneauConfirm().show();
     },
     saveReponse: function () {

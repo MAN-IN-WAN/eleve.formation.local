@@ -64,7 +64,6 @@ Ext.application({
     },
 
     launch: function() {
-
         //message box traduction
         var MB = Ext.MessageBox;
         Ext.apply(MB, {
