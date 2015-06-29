@@ -274,9 +274,15 @@ Ext.define('eleve.controller.Main', {
     checkEtape: function(){
         console.log('check etape');
         var me = this;
+        var curview = me._indexViews['eleve.view.Wait'];
 
         var currentQuestion = me.getCurrentQuestion();
         console.log('check etape',currentQuestion);
+
+        //aucune session disponible
+        var task = Ext.create('Ext.util.DelayedTask', function() {
+            me.checkEtape();
+        }, this);
 
         //interrogation du serveur pour savoir si l'etape est debloquée
         var url = eleve.utils.Config.getCheckEtapeUrl();
@@ -303,11 +309,6 @@ Ext.define('eleve.controller.Main', {
                         eleve.utils.Config.resetSession();
                     }
 
-                    //aucune session disponible
-                    var task = Ext.create('Ext.util.DelayedTask', function() {
-                        me.checkEtape();
-                    }, this);
-
                     //The function will start after 0 milliseconds - so we want to start instantly at first
                     task.delay(5000);
                 }
@@ -316,7 +317,10 @@ Ext.define('eleve.controller.Main', {
             failure: function(response, opts) {
                 //suppression du masque
                 console.log('Récupération de session erreur ' + response.status);
-                Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');
+                /*Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');*/
+
+                //relance le test si on clique sur la view
+                task.delay(5000);
             }
         });
     },

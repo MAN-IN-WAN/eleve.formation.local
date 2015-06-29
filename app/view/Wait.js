@@ -20,9 +20,9 @@ Ext.define('eleve.view.Wait', {
             },
             {
                 width: '100%',
-                style: 'margin-top: 400px;text-align: center;',
+                style: 'margin-top: 250px;text-align: center;',
                 action: 'loadingText',
-                html: '<h1>Merci, veuillez continuer sur le parcours.</h1>'
+                html: '<h1>Reprenez la suite sur le support papier.</h1>'
             }
         ]
     }
