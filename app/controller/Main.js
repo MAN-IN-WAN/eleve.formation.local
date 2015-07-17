@@ -108,7 +108,15 @@ Ext.define('eleve.controller.Main', {
             },
             failure: function(response, opts) {
                 //suppression du masque
-                Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');
+                //Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');
+                console.log('erreur de connexion');
+                //aucune session disponible
+                var task = Ext.create('Ext.util.DelayedTask', function() {
+                    me.saveReponse();
+                }, this);
+
+                //The function will start after 0 milliseconds - so we want to start instantly at first
+                task.delay(1000);
             }
         });
 
@@ -378,7 +386,15 @@ Ext.define('eleve.controller.Main', {
             failure: function(response, opts) {
                 //suppression du masque
                 console.log('Récupération de session erreur ' + response.status);
-                Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');
+                //Ext.Msg.alert('Erreur de connexion', 'Il y a un problème ... Veuillez appeler l\'animateur');
+
+                //aucune session disponible
+                var task = Ext.create('Ext.util.DelayedTask', function() {
+                    me.getSession();
+                }, this);
+
+                //The function will start after 0 milliseconds - so we want to start instantly at first
+                task.delay(5000);
             }
         });
     },

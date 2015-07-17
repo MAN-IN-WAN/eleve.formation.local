@@ -1,8 +1,12 @@
 // The following two lines import the default Sencha Touch theme. If you are building
 // a new theme, remove them and the add your own CSS on top of the base CSS (which
 // is already included in your app.json file).
-@import 'sencha-touch/default';
-@import 'sencha-touch/default/all';
+//@import 'sencha-touch/default';
+//@import 'sencha-touch/default/all';
+//DIRTY WORKAROUND
+@import '/home/enguer/Logiciels/touch-2.4.2/resources/themes/stylesheets/sencha-touch/default';
+@import '/home/enguer/Logiciels/touch-2.4.2/resources/themes/stylesheets/sencha-touch/default/all';
+
 
 //global
 @import 'include/title';
@@ -11,8 +15,5 @@
 @import 'include/form';
 @import 'include/marker';
 @import 'include/actionsheet';
-
-// Custom code goes here..
-
 // Examples of using the icon mixin:
 // @include icon('user');
