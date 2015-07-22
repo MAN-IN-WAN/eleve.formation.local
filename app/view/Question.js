@@ -186,6 +186,7 @@ Ext.define('eleve.view.Question', {
                         break;
                     case "5": //Sélection
                         var tqv = Ext.getStore('TypeQuestionValeurs');
+                        tqv.filter('TypeQuestionId',item.get('id'));
                         var opts= [];
                         tqv.each(function (item, index){
                             opts.push({
@@ -193,6 +194,9 @@ Ext.define('eleve.view.Question', {
                                 value: item.get('id'),
                                 label: item.get('Valeur')
                             });
+                        });
+                        me.down('[action=questionContainer]').add({
+                           html: '<h1>'+item.get('Nom')+'</h1>'
                         });
                         me.down('[action=questionContainer]').add({
                             xtype: 'fieldset',

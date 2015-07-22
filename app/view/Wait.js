@@ -15,12 +15,12 @@ Ext.define('eleve.view.Wait', {
             },
             {
                 html: '<i class="fa fa-users fa-6"></i>',
-                style: 'position:absolute; z-index:1; top:50%; left:50%;',
+                style: 'position:absolute; z-index:1; top:45%; left:50%;',
                 action: 'mapMarker'
             },
             {
                 width: '100%',
-                style: 'margin-top: 250px;text-align: center;',
+                style: 'position:absolute;top:45%;z-index:1;text-align: center;',
                 action: 'loadingText',
                 html: '<h1>Reprenez la suite sur le support papier.</h1>'
             }

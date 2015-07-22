@@ -40,6 +40,9 @@ Ext.define('eleve.controller.Equipe', {
                         eleve.utils.Config.setSessionEquipe(num);
                         console.log('set team OK');
 
+                        //définition de la question courrante
+                        eleve.utils.Config.setCurrentQuestion(obj.currentquestion);
+
                         //redirection
                         me.redirectTo('map');
                     }else{
