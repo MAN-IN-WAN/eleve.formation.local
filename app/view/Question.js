@@ -157,7 +157,7 @@ Ext.define('eleve.view.Question', {
                         Ext.getCmp('texte-'+item.get('id')).focus();
                         break;
                     case "4": //Booleen
-                        me.down('[action=questionContainer]').add({
+                        /*me.down('[action=questionContainer]').add({
                             xtype: 'togglefield',
                             label:item.get('Nom'),
                             id: 'booleen-'+item.get('id'),
@@ -182,6 +182,48 @@ Ext.define('eleve.view.Question', {
                                     }
                                 }
                             }
+                        });*/
+                        me.down('[action=questionContainer]').add({
+                            xtype: 'fieldset',
+                            id: 'booleen-'+item.get('id'),
+                            cls: 'booleen-fieldset',
+                            items: [
+                                {
+                                    xtype   : 'radiofield',
+                                    name    : 'boolean',
+                                    value   : '1',
+                                    label   : 'Oui',
+                                    cls: 'booleen-oui',
+                                    listeners: {
+                                        change: function (tf){
+                                            console.log('OUI toggle change',tf.isChecked());
+                                            if (tf.isChecked()){
+                                                //reponse vrai on affiche les éléments correspondants
+                                                Ext.each(me.query('[action=AfficheOui]'),function (it2){
+                                                    it2.setHidden(false);
+                                                });
+                                                Ext.each(me.query('[action=AfficheNon]'),function (it3) {
+                                                    it3.setHidden(true);
+                                                });
+                                            }else{
+                                                Ext.each(me.query('[action=AfficheOui]'),function (it2){
+                                                    it2.setHidden(true);
+                                                });
+                                                Ext.each(me.query('[action=AfficheNon]'),function (it3) {
+                                                    it3.setHidden(false);
+                                                });
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    xtype : 'radiofield',
+                                    name  : 'boolean',
+                                    value : '2',
+                                    cls: 'booleen-non',
+                                    label : 'Non'
+                                }
+                            ]
                         });
                         break;
                     case "5": //Sélection
@@ -243,23 +285,27 @@ Ext.define('eleve.view.Question', {
                     var texte = Ext.getCmp('texte-'+item.get('id'));
                     results['qi_'+item.get('id')] = texte.getValue();
                     if (!texte.getValue().length&&
-                        ((item.get('AfficheOui')&&me._lastBoolean&&me._lastBoolean.getValue())||
-                        (me._lastBoolean&&!me._lastBoolean.getValue()&&item.get('AfficheNon'))||
+                        ((item.get('AfficheOui')&&me._lastBoolean&&me._lastBoolean.getGroupValue()==1)||
+                        (me._lastBoolean&&me._lastBoolean.getGroupValue()==2&&item.get('AfficheNon'))||
                         (me._lastBoolean&&!item.get('AfficheOui')&&!item.get('AfficheNon'))||
                         !me._lastBoolean)){
                         me._error = true;
-                        Ext.Msg.alert('Problème de saisie', 'Veuillez vérifier votre saisie. Tous les champs sont obligatoires');
+                        Ext.Msg.alert('', 'Veuillez vérifier votre saisie. Tous les champs sont obligatoires');
                     }
                     break;
                 case "4": //Booleen
-                    var booleen = Ext.getCmp('booleen-'+item.get('id'));
-                    results['qi_'+item.get('id')] = booleen.getValue();
-                    me._lastBoolean = booleen;
+                    var booleen = Ext.getCmp('booleen-'+item.get('id')).query('radiofield');
+                    if (!booleen[0].getGroupValue()){
+                        Ext.Msg.alert('','Veuillez choisir un élément de la liste.');
+                        me._error = true;
+                    }
+                    results['qi_'+item.get('id')] = (booleen[0].getGroupValue()==2)?0:booleen[0].getGroupValue();
+                    me._lastBoolean = booleen[0];
                     break;
                 case "5": //Sélection
                     var selection = Ext.getCmp('selection-'+item.get('id')).query('radiofield');
                     if (!selection[0].getGroupValue()){
-                        Ext.Msg.alert('Problème de saisie','Veuillez choisir un élément de la liste.');
+                        Ext.Msg.alert('','Veuillez choisir un élément de la liste.');
                         me._error = true;
                     }
                     results['qi_'+item.get('id')] = selection[0].getGroupValue();
