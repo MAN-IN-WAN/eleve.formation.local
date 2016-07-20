@@ -134,9 +134,14 @@ Ext.define('eleve.controller.Main', {
         var cnq = nq.getBloquage();
 
         //Si il y a un bloquage et qu'il s'agit de la meme catégorie, alors il ne faut rien faire.
-        if ((!cnq&&!ccq)||(cnq&&ccq&&cnq.cat==ccq.cat))
-            me.redirectTo('question/' + nq.get('id'));
-        else {
+        if ((!cnq&&!ccq)||(cnq&&ccq&&cnq.cat==ccq.cat)) {
+            //si la position de la question courante est différente de la questio suivante, on affiche la carte
+            if (cq.getPosition().cat!=nq.getPosition().cat){
+                eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
+                me.redirectTo('map');
+            }else
+                me.redirectTo('question/' + nq.get('id'));
+        }else {
             eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
             me.redirectTo('wait');
         }
@@ -312,13 +317,42 @@ Ext.define('eleve.controller.Main', {
                     me.redirectTo('map');
 
                 }else{
-                    if (obj.reset){
+                    if (!obj.data){
                         //reset de la config
                         eleve.utils.Config.resetSession();
+                        Ext.Msg.confirm(
+                            "Rechargement nécessaire",
+                            obj.msg,
+                            function(buttonId) {
+                                if (buttonId === 'yes') {
+                                    window.location.reload();
+                                }
+                            }
+                        );
+                    }else if (!obj.team){
+                        //reset de l'equipe et de la question courante
+                        Ext.Msg.confirm(
+                            "Equipe introuvable",
+                            obj.msg,
+                            function(buttonId) {
+                                eleve.utils.Config.resetTeam();
+                                eleve.utils.Config.resetCurrentQuestion();
+                                me.redirectTo('setteam');
+                            }
+                        );
+                    }else if (!obj.etape){
+                        /*Ext.Msg.confirm(
+                            "Etape incorrecte",
+                            obj.msg,
+                            function(buttonId) {
+                                eleve.utils.Config.resetCurrentQuestion();
+                                me.redirectTo('map');
+                            }
+                        );*/
+                    }else {
+                        //The function will start after 0 milliseconds - so we want to start instantly at first
+                        task.delay(5000);
                     }
-
-                    //The function will start after 0 milliseconds - so we want to start instantly at first
-                    task.delay(5000);
                 }
 
             },
@@ -355,7 +389,7 @@ Ext.define('eleve.controller.Main', {
                 var obj = Ext.decode(response.responseText);
                 if (obj.success){
                     //affichage du texte de chargement
-                    curview.down('[action=loadingText]').setHtml('<h1>Chargement en cours...</h1>');
+                    curview.down('[action=loadingText]').setHtml('<h1>Loading...</h1>');
 
                     //enregistrement des informations de session
                     eleve.utils.Config.setSessionId(obj.id);
@@ -371,7 +405,7 @@ Ext.define('eleve.controller.Main', {
                         eleve.utils.Config.resetSession();
 
                     //affichage du texte attente de session
-                    curview.down('[action=loadingText]').setHtml('<h1>Attente d\'une session...</h1>');
+                    curview.down('[action=loadingText]').setHtml('<h1>Waiting for session...</h1>');
 
                     //aucune session disponible
                     var task = Ext.create('Ext.util.DelayedTask', function() {

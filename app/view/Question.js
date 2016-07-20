@@ -15,7 +15,7 @@ Ext.define('eleve.view.Question', {
             {
                 docked: 'top',
                 xtype: 'titlebar',
-                title: eleve.utils.Config.getAppTitle()
+                title: eleve.utils.Config.getApplicationName()
             },
             {
                 action: 'panneauConfirm',
@@ -27,7 +27,7 @@ Ext.define('eleve.view.Question', {
                 hidden: true,
                 items: [
                     {
-                        text: 'Etes-vous sur ?     OUI',
+                        text: 'Are you sure ?     YES',
                         ui  : 'confirm',
                         action: 'confirm',
                         handler: function () {
@@ -37,13 +37,22 @@ Ext.define('eleve.view.Question', {
                     },
                     {
                         ui: 'decline',
-                        text: 'Etes-vous sur ?     NON',
+                        text: 'Are you sure ?     NO',
                         handler: function () {
                             this.up('[xtype=question]').down('[action=scrollableContainer]').getScrollable().getScroller().scrollTo(0,0,true);
                             this.up('[action=panneauConfirm]').hide();
                         }
                     }
                 ]
+            },
+            {
+                xtype: 'panel',
+                height: '50%',
+                hidden: true,
+                scrollable: true,
+                style: 'margin-top: 10px;',
+                action: 'questionImage',
+                html: ''
             },
             {
                 xtype: 'panel',
@@ -54,11 +63,11 @@ Ext.define('eleve.view.Question', {
                 items: [
                     {
                         action: 'catHistory',
-                        style: 'overflow:hidden;',
+                        style: 'overflow:hidden;margin: 20px;',
                         html: ''
                     },
                     {
-                        style: 'margin-top: 10px;',
+                        style: 'margin-top: 20px;',
                         action: 'questionTitle',
                         html: ''
                     },
@@ -68,7 +77,7 @@ Ext.define('eleve.view.Question', {
                     {
                         xtype: 'button',
                         action: 'nextButton',
-                        text: 'Confirmer',
+                        text: 'Please confirm',
                         ui: 'decline'
                     }
                 ]
@@ -82,6 +91,9 @@ Ext.define('eleve.view.Question', {
         //reset la fiche
         this.resetView();
 
+        //mise à jour du titre de l'application
+        this.down('[xtype=titlebar]').setTitle(eleve.utils.Config.getApplicationName());
+
         //intiilisation de la question
         console.log('affichage de la question',record);
         if (record) {
@@ -94,6 +106,12 @@ Ext.define('eleve.view.Question', {
 
             var h = this.getCatHistory(c.get('id'));
             this.down('[action=catHistory]').setHtml(h[0]+h[1]);
+
+            //génératio ndu titre de la question
+            if (record.get('Image').length) {
+                this.down('[action=questionImage]').setHidden(false);
+                this.down('[action=questionImage]').setHtml('<img src="' + _prefixDomain + '/' + record.get('Image') + '" />');
+            }else this.down('[action=questionImage]').setHidden(true);
 
             //génératio ndu titre de la question
             this.down('[action=questionTitle]').setHtml('<h1>'+record.get('Nom')+'</h1>');
@@ -192,7 +210,7 @@ Ext.define('eleve.view.Question', {
                                     xtype   : 'radiofield',
                                     name    : 'boolean',
                                     value   : '1',
-                                    label   : 'Oui',
+                                    label   : 'Yes',
                                     cls: 'booleen-oui',
                                     listeners: {
                                         change: function (tf){
@@ -221,7 +239,7 @@ Ext.define('eleve.view.Question', {
                                     name  : 'boolean',
                                     value : '2',
                                     cls: 'booleen-non',
-                                    label : 'Non'
+                                    label : 'No'
                                 }
                             ]
                         });
@@ -234,12 +252,13 @@ Ext.define('eleve.view.Question', {
                             opts.push({
                                 name: 'question_'+record.get('Id'),
                                 value: item.get('id'),
-                                label: item.get('Valeur')
+                                label: ((item.get('Image').length)?'<img style="float: left;margin:0 20px;" src="' + _prefixDomain + '/'+item.get('Image')+'" />'+item.get('Valeur'):item.get('Valeur'))
                             });
                         });
-                        me.down('[action=questionContainer]').add({
-                           html: '<h1>'+item.get('Nom')+'</h1>'
-                        });
+                        if (item.get('Nom'))
+                            me.down('[action=questionContainer]').add({
+                               html: '<h1>'+item.get('Nom')+'</h1>'
+                            });
                         me.down('[action=questionContainer]').add({
                             xtype: 'fieldset',
                             id: 'selection-'+item.get('id'),
@@ -290,13 +309,13 @@ Ext.define('eleve.view.Question', {
                         (me._lastBoolean&&!item.get('AfficheOui')&&!item.get('AfficheNon'))||
                         !me._lastBoolean)){
                         me._error = true;
-                        Ext.Msg.alert('', 'Veuillez vérifier votre saisie. Tous les champs sont obligatoires');
+                        Ext.Msg.alert('', 'Please check your inputs. All fields are mandatory.');
                     }
                     break;
                 case "4": //Booleen
                     var booleen = Ext.getCmp('booleen-'+item.get('id')).query('radiofield');
                     if (!booleen[0].getGroupValue()){
-                        Ext.Msg.alert('','Veuillez choisir un élément de la liste.');
+                        Ext.Msg.alert('','Please select an item in the list.');
                         me._error = true;
                     }
                     results['qi_'+item.get('id')] = (booleen[0].getGroupValue()==2)?0:booleen[0].getGroupValue();
@@ -305,7 +324,7 @@ Ext.define('eleve.view.Question', {
                 case "5": //Sélection
                     var selection = Ext.getCmp('selection-'+item.get('id')).query('radiofield');
                     if (!selection[0].getGroupValue()){
-                        Ext.Msg.alert('','Veuillez choisir un élément de la liste.');
+                        Ext.Msg.alert('','Please select an item in the list.');
                         me._error = true;
                     }
                     results['qi_'+item.get('id')] = selection[0].getGroupValue();

@@ -52,7 +52,7 @@
     <!-- The line below must be kept intact for Sencha Command to build your application -->
     <script type="text/javascript">
 
-        var _debug = false;
+        var _debug = true;
         var _prefixDomain = '';
         if (_debug)
             _prefixDomain = 'http://www.deploiement.pro';

@@ -64,6 +64,9 @@ Ext.application({
     },
 
     launch: function() {
+        //clean localstorage
+        localStorage.clear();
+
         //message box traduction
         var MB = Ext.MessageBox;
         Ext.apply(MB, {
@@ -97,10 +100,11 @@ Ext.application({
     },
     onUpdated: function() {
         Ext.Msg.confirm(
-            "Application Update",
-            "This application has just successfully been updated to the latest version. Reload now?",
+            "L'application nécessite une mise à jour",
+            "La mise à jour nécessite un rechargement des données. cliquez sur OK",
             function(buttonId) {
                 if (buttonId === 'yes') {
+                    localStorage.clear();
                     window.location.reload();
                 }
             }

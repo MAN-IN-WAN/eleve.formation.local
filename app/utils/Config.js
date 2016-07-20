@@ -6,7 +6,7 @@ Ext.define('eleve.utils.Config', {
         /**
          * global config
          */
-        appTitle: 'ERDF',
+        appTitle: 'HUB',
         loaded: false,
         /**
          * Urls
@@ -89,6 +89,7 @@ Ext.define('eleve.utils.Config', {
         }
     },
     updateSessionName: function (o) {
+        console.log('updateSessionName',o)
         try {
             if (window.localStorage) {
                 localStorage.setItem('sessionname',o);
@@ -147,6 +148,24 @@ Ext.define('eleve.utils.Config', {
             });
         }
     },
+    resetTeam: function () {
+        console.log('==> reset team');
+
+        //reset localstorage
+        localStorage.removeItem('equipe');
+
+        //reset local vars
+        this.setSessionEquipe(null);
+    },
+    resetCurrentQuestion: function () {
+        console.log('==> reset etape');
+
+        //reset localstorage
+        localStorage.removeItem('currentquestion');
+
+        //reset local vars
+        this.setCurrentQuestion(-1);
+    },
     resetSession: function () {
         console.log('==> reset session');
 
@@ -160,12 +179,13 @@ Ext.define('eleve.utils.Config', {
         this.setSessionEquipe(null);
         this.setSessionId(null);
         this.setSessionName(null);
+        this.setCurrentQuestion(-1);
 
         //disconnect
         this.getApp().fireEvent('disconnect');
     },
     getApplicationName: function (){
-        console.log('getsession name'+this.getSessionName());
+        console.log('getsession name '+this.getSessionName());
         return this.getAppTitle()+' - '+this.getSessionName();
     },
     constructor: function(config) {

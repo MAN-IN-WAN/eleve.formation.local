@@ -1,4 +1,4 @@
-function _3ec912b80e9ce52bded53044fa31e1c62db82142(){};//@tag foundation,core
+function _7424047ec8a345f38edaef2a2f2a10da0a3a4951(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -66995,7 +66995,7 @@ Ext.define('eleve.utils.Config', {
         /**
          * global config
          */
-        appTitle: 'ERDF',
+        appTitle: 'HUB',
         loaded: false,
         /**
          * Urls
@@ -67078,6 +67078,7 @@ Ext.define('eleve.utils.Config', {
     },
     // traitement lors de l'exception
     updateSessionName: function(o) {
+        console.log('updateSessionName', o);
         try {
             if (window.localStorage) {
                 localStorage.setItem('sessionname', o);
@@ -67131,6 +67132,20 @@ Ext.define('eleve.utils.Config', {
             });
         }
     },
+    resetTeam: function() {
+        console.log('==> reset team');
+        //reset localstorage
+        localStorage.removeItem('equipe');
+        //reset local vars
+        this.setSessionEquipe(null);
+    },
+    resetCurrentQuestion: function() {
+        console.log('==> reset etape');
+        //reset localstorage
+        localStorage.removeItem('currentquestion');
+        //reset local vars
+        this.setCurrentQuestion(-1);
+    },
     resetSession: function() {
         console.log('==> reset session');
         //reset localstorage
@@ -67142,11 +67157,12 @@ Ext.define('eleve.utils.Config', {
         this.setSessionEquipe(null);
         this.setSessionId(null);
         this.setSessionName(null);
+        this.setCurrentQuestion(-1);
         //disconnect
         this.getApp().fireEvent('disconnect');
     },
     getApplicationName: function() {
-        console.log('getsession name' + this.getSessionName());
+        console.log('getsession name ' + this.getSessionName());
         return this.getAppTitle() + ' - ' + this.getSessionName();
     },
     constructor: function(config) {
@@ -67561,10 +67577,16 @@ Ext.define('eleve.controller.Main', {
         }
         var cnq = nq.getBloquage();
         //Si il y a un bloquage et qu'il s'agit de la meme catégorie, alors il ne faut rien faire.
-        if ((!cnq && !ccq) || (cnq && ccq && cnq.cat == ccq.cat))  {
-            me.redirectTo('question/' + nq.get('id'));
-        }
-        else {
+        if ((!cnq && !ccq) || (cnq && ccq && cnq.cat == ccq.cat)) {
+            //si la position de la question courante est différente de la questio suivante, on affiche la carte
+            if (cq.getPosition().cat != nq.getPosition().cat) {
+                eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
+                me.redirectTo('map');
+            } else  {
+                me.redirectTo('question/' + nq.get('id'));
+            }
+            
+        } else {
             eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
             me.redirectTo('wait');
         }
@@ -67736,12 +67758,30 @@ Ext.define('eleve.controller.Main', {
                     //affichage de la map
                     me.redirectTo('map');
                 } else {
-                    if (obj.reset) {
+                    if (!obj.data) {
                         //reset de la config
                         eleve.utils.Config.resetSession();
+                        Ext.Msg.confirm("Rechargement nécessaire", obj.msg, function(buttonId) {
+                            if (buttonId === 'yes') {
+                                window.location.reload();
+                            }
+                        });
+                    } else if (!obj.team) {
+                        //reset de l'equipe et de la question courante
+                        Ext.Msg.confirm("Equipe introuvable", obj.msg, function(buttonId) {
+                            eleve.utils.Config.resetTeam();
+                            eleve.utils.Config.resetCurrentQuestion();
+                            me.redirectTo('setteam');
+                        });
+                    } else if (!obj.etape) {
+                        Ext.Msg.confirm("Etape incorrecte", obj.msg, function(buttonId) {
+                            eleve.utils.Config.resetCurrentQuestion();
+                            this.redirectTo('map');
+                        });
+                    } else {
+                        //The function will start after 0 milliseconds - so we want to start instantly at first
+                        task.delay(5000);
                     }
-                    //The function will start after 0 milliseconds - so we want to start instantly at first
-                    task.delay(5000);
                 }
             },
             failure: function(response, opts) {
@@ -68275,7 +68315,7 @@ Ext.define('eleve.view.Map', {
             allY = -(position.map.height / 2) + (screenh * scale) / 2;
             //positionnement du scroll
             var posx = allX - ((position.posx - 0.5) * (position.map.width - screenw * scale));
-            var posy = allY - ((position.posy - 0.5) * (position.map.height - screenh * scale));
+            var posy = allY - ((position.posy - 0.5) * (position.map.height));
             console.log(position.posx, position.posy, allX, allY, posx, posy, 'posy', Math.abs(position.posy - 0.5), 'débattement', (position.map.height - screenh * scale));
             move(map.element.dom).scale(scale).to(posx, posy).duration(3000).end();
         }, this, {
@@ -68300,7 +68340,7 @@ Ext.define('eleve.view.Question', {
             {
                 docked: 'top',
                 xtype: 'titlebar',
-                title: eleve.utils.Config.getAppTitle()
+                title: eleve.utils.Config.getApplicationName()
             },
             {
                 action: 'panneauConfirm',
@@ -68365,6 +68405,8 @@ Ext.define('eleve.view.Question', {
         this._record = record;
         //reset la fiche
         this.resetView();
+        //mise à jour du titre de l'application
+        this.down('[xtype=titlebar]').setTitle(eleve.utils.Config.getApplicationName());
         //intiilisation de la question
         console.log('affichage de la question', record);
         if (record) {
@@ -68749,8 +68791,9 @@ Ext.application({
         eleve.utils.Config.initSession();
     },
     onUpdated: function() {
-        Ext.Msg.confirm("Application Update", "This application has just successfully been updated to the latest version. Reload now?", function(buttonId) {
+        Ext.Msg.confirm("L'application nécessite une mise à jour", "La mise à jour nécessite un rechargement des données. cliquez sur OK", function(buttonId) {
             if (buttonId === 'yes') {
+                localStorage.clear();
                 window.location.reload();
             }
         });

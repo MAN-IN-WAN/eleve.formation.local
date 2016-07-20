@@ -26,6 +26,12 @@ Ext.define('eleve.controller.Equipe', {
             //vérification de l'équipe auprès du serveur
             var url = eleve.utils.Config.getSubmitTeamUrl();
             var me  = this;
+            var curview = Ext.Viewport.getActiveItem();
+            //masquage de la vue en cours pendant le chargement
+            curview.setMasked({
+                indicator: false,
+                 message: 'Loading team ...'
+            });
             Ext.Ajax.request({
                 url: url,
                 useDefaultXhrHeader: false,
@@ -34,6 +40,7 @@ Ext.define('eleve.controller.Equipe', {
                     num: num
                 },
                 success: function(response, opts) {
+                    curview.setMasked(null);
                     var obj = Ext.decode(response.responseText);
                     if (obj.success){
                         //enregistrement des informations de session
@@ -47,18 +54,19 @@ Ext.define('eleve.controller.Equipe', {
                         me.redirectTo('map');
                     }else{
                         console.log('Enregistrement Equipe erreur du serveur');
-                        Ext.Msg.alert('Erreur de définition de l\'équipe', 'Cette équipe est déjà connectée. Veuillez vérifier votre numéro sur la table.');
+                        Ext.Msg.alert('Error when setting the team', 'This team is already connected. Please check your number on table.');
                     }
                 },
                 failure: function(response, opts) {
+                    curview.setMasked(null);
                     //suppression du masque
                     console.log('Enregistrement Equipe erreur ' + response.status);
-                    Ext.Msg.alert('Erreur de définition de l\'équipe', 'Il y a un problème ... Veuillez appeler l\'animateur');
+                    Ext.Msg.alert('Error when setting the team', 'There is a problem ... Please call the facilitator');
                 }
             });
         }else{
             console.log('Enregistrement Equipe erreur :' + num);
-            Ext.Msg.alert('Erreur de saisie de l\'équipe', 'Veuillez vérrifier votre numéro d\'équipe');
+            Ext.Msg.alert('Error when setting the team', 'Please check your team number');
         }
     }
 });

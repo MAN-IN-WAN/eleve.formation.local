@@ -35,7 +35,7 @@ Ext.define('eleve.view.SetEquipe', {
                         label: 'Equipe',
                         cls: 'ypm-input',
                         clearIcon: false,
-                        placeHolder: 'Numéro de table',
+                        placeHolder: 'Table number',
                         autoCapitalize: false,
                         required      : true,
                         id: 'equipeinput'
@@ -43,7 +43,7 @@ Ext.define('eleve.view.SetEquipe', {
                     {
                         xtype: 'button',
                         action: 'validerequipe',
-                        text: 'Enregistrer',
+                        text: 'Register',
                         cls: 'ypm-button valider-inscription'
                     }
                 ]

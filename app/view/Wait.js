@@ -22,7 +22,7 @@ Ext.define('eleve.view.Wait', {
                 width: '100%',
                 style: 'position:absolute;top:45%;z-index:1;text-align: center;',
                 action: 'loadingText',
-                html: '<h1>Reprenez la suite sur le support papier.</h1>'
+                html: '<h1>Go back to the ActionMat</h1>'
             }
         ]
     }

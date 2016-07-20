@@ -4,6 +4,7 @@ Ext.define('eleve.model.TypeQuestionValeur', {
         fields: [
             {name: 'id',          type: 'int'},
             {name: 'Valeur',      type: 'string'},
+            {name: 'Image',      type: 'string'},
             {name: 'TypeQuestionId',      type: 'int'}
         ]
     }

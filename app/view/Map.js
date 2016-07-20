@@ -21,7 +21,7 @@ Ext.define('eleve.view.Map', {
                 action: 'containerMap',
                 items: [
                     {
-                        html: '<i class="fa fa-map-marker fa-6">Vous êtes ici</i>',
+                        html: '<i class="fa fa-map-marker fa-6">You are here</i>',
                         style: 'position:absolute; z-index:10000; top:50%; left:50%;',
                         action: 'mapMarker'
                     },{
@@ -57,10 +57,10 @@ Ext.define('eleve.view.Map', {
             action: 'map'
         });
 
-        scale = screenh/position.map.height;
+        //scale = screenh/position.map.height;
 
         var allX = Math.floor((position.map.width/2) - (((position.map.width) - (screenw/scale))/2));
-        var allY = Math.floor (position.map.height/2);
+        var allY = Math.floor( (position.map.height/2) - (((position.map.height) - (screenh/scale))/2));
 
         move(map.element.dom)
             .to(-Math.floor(position.map.width/2), -Math.floor(position.map.height/2))
@@ -76,8 +76,8 @@ Ext.define('eleve.view.Map', {
                 allY = -(position.map.height / 2) + (screenh * scale) / 2;
 
                 //positionnement du scroll
-                var posx = allX - ((position.posx - 0.5) * (position.map.width - screenw*scale));
-                var posy = allY - ((position.posy-0.5) * (position.map.height - screenh*scale));
+                var posx = allX - ((position.posx - 0.5) * (position.map.width));
+                var posy = allY - ((position.posy-0.5) * (position.map.height));
 
                 console.log(position.posx,position.posy,allX, allY, posx,posy,'posy',Math.abs(position.posy-0.5), 'débattement',(position.map.height - screenh*scale));
                 move(map.element.dom)
@@ -95,5 +95,6 @@ Ext.define('eleve.view.Map', {
             console.log('tap sur le systeme');
             me.down('[action=mapMarker]').fireEvent('tap');
         });
+
     }
 });
