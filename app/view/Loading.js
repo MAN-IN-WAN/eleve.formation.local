@@ -17,7 +17,7 @@ Ext.define('eleve.view.Loading', {
                 width: '100%',
                 style: 'top: 45%;text-align: center;position:absolute;z-index:1',
                 action: 'loadingText',
-                html: '<h1>Loading ...</h1>'
+                html: '<h1>Chargement ...</h1>'
             }
         ]
     }

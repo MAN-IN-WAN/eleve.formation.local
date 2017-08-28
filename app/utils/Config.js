@@ -40,7 +40,8 @@ Ext.define('eleve.utils.Config', {
         storeQuestion:  _prefixDomain+'/Formation/Session/getQuestions.json',
         storeTypeQuestion:  _prefixDomain+'/Formation/Session/getTypeQuestions.json',
         storeTypeQuestionValeur:  _prefixDomain+'/Formation/Session/getTypeQuestionValeurs.json',
-        storeTypeReponse:  _prefixDomain+'/Formation/Session/getTypeReponses.json'
+        storeTypeReponse:  _prefixDomain+'/Formation/Session/getTypeReponses.json',
+        storeRegion:  _prefixDomain+'/Formation/Session/getRegions.json'
     },
     updateCurrentQuestion: function (o) {
         console.log('current question', o);

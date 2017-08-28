@@ -1,2 +1,2 @@
 // @tag full-page
-// @require /home/enguer/PhpstormProjects/eleve.formation.local/app.js
+// @require /home/mogwaili/Dev/AppliMobile/eleve.formation.local/app.js

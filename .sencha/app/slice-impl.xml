@@ -1,4 +1,11 @@
 <project name="x-slice-impl">
+    
+    <target name="-load-sass-page" 
+            depends="-detect-app-build-properties,
+                     -generate-slicer-bootstrap,
+                     -generate-slicer-manifest">
+    </target>
+    
     <!--
     Uses the compiler to generate a special theme-only scss file containing
     rules for all framework / package / app components.  This is then used
@@ -10,7 +17,20 @@
         <x-normalize-path 
             path="${build.out.resources.dir}" 
             property="image.search.path"/>
-        
+
+        <local name="var.begin"/>
+        <local name="var.end"/>
+
+        <condition property="var.begin" value="dynamic(">
+            <isset property="framework.isV6"/>
+        </condition>
+        <condition property="var.end" value=")">
+            <isset property="framework.isV6"/>
+        </condition>
+
+        <property name="var.begin" value=""/>
+        <property name="var.end" value="!default"/>
+
         <x-compile refid="${compiler.ref.id}">
             <![CDATA[
                 restore
@@ -20,18 +40,22 @@
                     -all
                 and
                 sass
+                    +skipWatch
                     +class-name-vars
                     +etc
                     +vars
                     +rules
+                    -variable=$app-name: ${var.begin} '${app.name}' ${var.end}
                     -variable=$image-search-path:'${image.search.path}'
-                    -variable=$theme-name: '${app.theme}' !default
+                    -variable=$theme-name: ${var.begin} '${theme.name}' ${var.end}
                     -output=${app.example.scss.tmp}
+                    -forward=${app.sass.dynamic}
                 and
                 restore
                     page
                 and
                 sass
+                    +skipWatch
                     +ruby
                     -output=${app.example.out.ruby}
             ]]>
@@ -46,7 +70,7 @@
             </then>
         </if>
 
-        <x-get-relative-path from="${app.example.dir}"
+        <x-get-relative-path from="${app.example.build.dir}"
                              to="${app.example.css}"
                              property="app.example.css.path"/>
         
@@ -69,11 +93,28 @@
     -->
     <target name="-compass-compile-slicer-css" depends="-compile-slicer-sass">
         <if>
-            <x-is-true value="${build.enable.fashion}"/>
+            <x-is-true value="${app.sass.fashion}"/>
             <then>
-                <x-fashion-compile
-                        file="${app.example.scss}"
-                        toFile="${app.example.css}"/>
+                <if>
+                    <x-is-true value="${app.sass.rhino}"/>
+                    <then>
+                        <x-fashion-compile
+                                slicer="true"
+                                file="${app.example.build.dir}"
+                                toFile="${app.example.build.dir}"/>
+                    </then>
+                    <else>
+                        <x-sencha-command>
+                            fashion
+                            -config=${app.dir}/app.json
+                            -slicer=true
+                            -compress=${build.css.compress}
+                            -split=${build.css.selector.limit}
+                            ${app.example.build.dir}
+                            ${app.example.build.dir}
+                        </x-sencha-command>
+                    </else>
+                </if>
             </then>
             <else>
                 <x-compass-compile
@@ -87,14 +128,26 @@
             </else>
         </if>
     </target>
-
+    
     <!-- Produces a bootstrap.js file for ext 4.2 slicer pages -->
     <target name="-generate-slicer-bootstrap" unless="framework.isV5">
         <local name="relpath"/>
+        <local name="cmd.dir.normalized"/>
         <x-get-relative-path from="${bootstrap.base.path}"
                              to="${framework.packages.dir}"
                              property="relpath"/>
 
+        <script language="javascript">
+            <![CDATA[
+                var dir = project.getProperty("cmd.dir") + '';
+                dir = dir.replace(/\\/g, '/');
+                if (dir.indexOf('/') !== 0) {
+                    dir = '/' + dir; 
+                }
+                project.setProperty("cmd.dir.normalized", dir);
+            ]]>
+        </script>
+        
         <x-bootstrap file="${bootstrap.example.js}"
                      basedir="${bootstrap.base.path}"
                      includeBoot="true"
@@ -104,7 +157,7 @@
                      overrideExcludeTags="">
 <![CDATA[
 Ext.Boot.loadSync([
-    "render.js",
+    "${cmd.dir.normalized}/ant/build/slicer/render.js",
     "${relpath}/ext-theme-base/sass/example/manifest.js",
     "${relpath}/ext-theme-base/sass/example/shortcuts.js",
     "custom.js"
@@ -127,7 +180,7 @@ Ext.Boot.loadSync([
             <then>
                 <property name="manifest.bootstrap.js.exclude">
                     exclude
-                    -tag=framework,package-sencha-core
+                    -tag=framework,package-sencha-core,package-core,package-${toolkit.name}
                 </property>
                 <x-compile refid="${compiler.ref.id}">
                     <![CDATA[
@@ -140,10 +193,14 @@ Ext.Boot.loadSync([
             </then>
         </if>
 
+        <property name="remove.slicer.css.bootstrap.entries" value="false"/>
+
         <x-compile refid="${compiler.ref.id}">
             <![CDATA[
                 slicer-manifest
                     -exclude=${manifest.root.excludes}
+                    -jsonp=Ext.Microloader.setManifest
+                    -removeBootstrapCssEntries=${remove.slicer.css.bootstrap.entries}
                     +ignoreDisabled
                     -basePath=${bootstrap.base.path}
                     -cssFile=${app.example.css.file}
@@ -157,18 +214,34 @@ Ext.Boot.loadSync([
             ]]>
         </x-compile>
     </target>
-    
+
     <target name="-capture-theme-image">
         <echo>Capture theme image to ${build.capture.png}</echo>
         <x-sencha-command>
             <![CDATA[
                 theme
                     capture
+                        -base=${app.example.build.dir}
                         -page=${app.example.theme.html}
                         -image=${build.capture.png}
                         -manifest=${build.capture.json}
             ]]>
         </x-sencha-command>
+    </target>
+
+    <target name="-capture-sass-page-image">
+        <if>
+            <and>
+                <x-is-true value="${app.sass.fashion}"/>
+                <x-is-false value="${app.sass.rhino}"/>
+            </and>
+            <then>
+                <echo>Capture theme image to ${build.capture.png}</echo>
+                <x-capture-slicer-data manifestPath="${build.capture.json}"
+                                       imagePath="${build.capture.png}"
+                                       refId="app.web.server"/>
+            </then>
+        </if>
     </target>
     
     <target name="-slice-theme-images">
@@ -185,15 +258,14 @@ Ext.Boot.loadSync([
         </x-sencha-command>
     </target>
     
+
     <!--
     Generates theme images for Ext JS 4.2+ apps using theme packages
     '-detect-app-build-properties' is defined in js-impl.xml
     -->
     <target name="-slice-app-theme" 
-            depends="-detect-app-build-properties,
+            depends="-load-sass-page,
                      -compass-compile-slicer-css,
-                     -generate-slicer-bootstrap,
-                     -generate-slicer-manifest,
                      -capture-theme-image,
                      -slice-theme-images">
     </target>

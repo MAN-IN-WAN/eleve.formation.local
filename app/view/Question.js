@@ -7,6 +7,7 @@ Ext.define('eleve.view.Question', {
         'Ext.field.Slider',
         'Ext.form.TextArea',
         'Ext.field.Toggle',
+        'Ext.field.Number',
         'Ext.ActionSheet'
     ],
     config: {
@@ -27,7 +28,7 @@ Ext.define('eleve.view.Question', {
                 hidden: true,
                 items: [
                     {
-                        text: 'Are you sure ?     YES',
+                        text: 'Êtes-vous sûr ?     OUI',
                         ui  : 'confirm',
                         action: 'confirm',
                         handler: function () {
@@ -37,22 +38,13 @@ Ext.define('eleve.view.Question', {
                     },
                     {
                         ui: 'decline',
-                        text: 'Are you sure ?     NO',
+                        text: 'Êtes-vous sûr ?     NON',
                         handler: function () {
                             this.up('[xtype=question]').down('[action=scrollableContainer]').getScrollable().getScroller().scrollTo(0,0,true);
                             this.up('[action=panneauConfirm]').hide();
                         }
                     }
                 ]
-            },
-            {
-                xtype: 'panel',
-                height: '50%',
-                hidden: true,
-                scrollable: true,
-                style: 'margin-top: 10px;',
-                action: 'questionImage',
-                html: ''
             },
             {
                 xtype: 'panel',
@@ -67,6 +59,15 @@ Ext.define('eleve.view.Question', {
                         html: ''
                     },
                     {
+                        xtype: 'panel',
+                        height: '100px',
+                        hidden: true,
+                        scrollable: true,
+                        style: 'margin-top: 10px;text-align:center;',
+                        action: 'questionImage',
+                        html: ''
+                    },
+                    {
                         style: 'margin-top: 20px;',
                         action: 'questionTitle',
                         html: ''
@@ -77,7 +78,7 @@ Ext.define('eleve.view.Question', {
                     {
                         xtype: 'button',
                         action: 'nextButton',
-                        text: 'Please confirm',
+                        text: 'Veuillez confirmer',
                         ui: 'decline'
                     }
                 ]
@@ -108,7 +109,7 @@ Ext.define('eleve.view.Question', {
             this.down('[action=catHistory]').setHtml(h[0]+h[1]);
 
             //génératio ndu titre de la question
-            if (record.get('Image').length) {
+            if (record.get('Image')) {
                 this.down('[action=questionImage]').setHidden(false);
                 this.down('[action=questionImage]').setHtml('<img src="' + _prefixDomain + '/' + record.get('Image') + '" />');
             }else this.down('[action=questionImage]').setHidden(true);
@@ -119,9 +120,18 @@ Ext.define('eleve.view.Question', {
             //Récupération du/des types questions
             var tqStore = Ext.getStore('TypeQuestions');
             var me = this;
-            tqStore.filter('QuestionId',record.get('id'));
-            tqStore.each(function (item,index){
+            tqStore.clearFilter();
+            tqStore.filter(new Ext.util.Filter({
+                property: 'QuestionId',
+                value: record.get('id'),
+                exactMatch: true
+            }));
 
+
+
+
+            tqStore.each(function (item,index){
+                console.log(item);
                 //ajout des typeQuestion
                 switch (item.get('TypeReponse')) {
                     case "1": //Jauge
@@ -210,7 +220,7 @@ Ext.define('eleve.view.Question', {
                                     xtype   : 'radiofield',
                                     name    : 'boolean',
                                     value   : '1',
-                                    label   : 'Yes',
+                                    label   : 'Oui',
                                     cls: 'booleen-oui',
                                     listeners: {
                                         change: function (tf){
@@ -239,7 +249,7 @@ Ext.define('eleve.view.Question', {
                                     name  : 'boolean',
                                     value : '2',
                                     cls: 'booleen-non',
-                                    label : 'No'
+                                    label : 'Non'
                                 }
                             ]
                         });
@@ -268,6 +278,68 @@ Ext.define('eleve.view.Question', {
                             },
                             items: opts
                         });
+                        break;
+                    case "6": //Pourcentage
+                        me.down('[action=questionContainer]').add({
+                            xtype: 'numberfield',
+                            id: 'pct-'+item.get('id'),
+                            label: item.get('Nom'),
+                            labelWidth: '70%',
+                            placeHolder: '0',
+                            minValue: 0,
+                            maxValue:100,
+                            stepValue: 5,
+                            width: '100%',
+                            html:'<span style="position:absolute;right:50px;top:13px">%</span>'
+                        });
+
+                        break;
+                    case "7": //TroisCriteres dont 1
+
+                        console.log(record);
+                        var label = '<i class="fa fa-pencil" aria-hidden="true"></i>';
+                        switch(record.get('Couleur')){
+                            case 'vert':
+                                classe = 'labelVert';
+                                me.down('[action=questionTitle]').setHtml('<h1 style="color:#fff;background-color:#7eb105;">'+record.get('Nom')+'</h1>');
+                                break;
+                            case 'rouge':
+                                classe = 'labelRouge';
+                                me.down('[action=questionTitle]').setHtml('<h1 style="color:#fff;background-color:#e00606;">'+record.get('Nom')+'</h1>');
+                                break;
+                        }
+
+                        me.down('[action=questionContainer]').add(
+                            [{
+                                xtype: 'fieldset',
+                                id: 'tri-'+item.get('id'),
+                                items: [
+                                    {
+                                        xtype: 'textfield',
+                                        label: label,
+                                        cls: 'triblock',
+                                        labelCls: classe,
+                                        labelWidth : '80px',
+                                        required: true,
+                                        id: 'tri-'+item.get('id')+'-1'
+                                    },{
+                                        xtype: 'textfield',
+                                        label: label,
+                                        cls: 'triblock',
+                                        labelCls: classe,
+                                        labelWidth : '80px',
+                                        id: 'tri-'+item.get('id')+'-2'
+                                    },{
+                                        xtype: 'textfield',
+                                        label: label,
+                                        cls: 'triblock',
+                                        labelCls: classe,
+                                        labelWidth : '80px',
+                                        id: 'tri-'+item.get('id')+'-3'
+                                    }
+                                ]
+                            }]
+                        );
                         break;
                 }
             });
@@ -309,13 +381,15 @@ Ext.define('eleve.view.Question', {
                         (me._lastBoolean&&!item.get('AfficheOui')&&!item.get('AfficheNon'))||
                         !me._lastBoolean)){
                         me._error = true;
-                        Ext.Msg.alert('', 'Please check your inputs. All fields are mandatory.');
+                        //Ext.Msg.alert('', 'Please check your inputs. All fields are mandatory.');
+                        Ext.Msg.alert('', 'Veuillez vérifier votre formulaire. Tous les champs sont obligatoires.');
                     }
                     break;
                 case "4": //Booleen
                     var booleen = Ext.getCmp('booleen-'+item.get('id')).query('radiofield');
                     if (!booleen[0].getGroupValue()){
-                        Ext.Msg.alert('','Please select an item in the list.');
+                        //Ext.Msg.alert('','Please select an item in the list.');
+                        Ext.Msg.alert('','Veuillez choisir un item de la liste.');
                         me._error = true;
                     }
                     results['qi_'+item.get('id')] = (booleen[0].getGroupValue()==2)?0:booleen[0].getGroupValue();
@@ -324,10 +398,35 @@ Ext.define('eleve.view.Question', {
                 case "5": //Sélection
                     var selection = Ext.getCmp('selection-'+item.get('id')).query('radiofield');
                     if (!selection[0].getGroupValue()){
-                        Ext.Msg.alert('','Please select an item in the list.');
+                        //Ext.Msg.alert('','Please select an item in the list.');
+                        Ext.Msg.alert('','Veuillez choisir un item de la liste.');
                         me._error = true;
                     }
                     results['qi_'+item.get('id')] = selection[0].getGroupValue();
+                    break;
+                case "6": //Pourcentage
+                    var pctgs = Ext.getCmp('pct-'+item.get('id'));
+                    if (!(pctgs.getValue()>0) && !(pctgs.getValue()===0)){
+                        me._error = true;
+                        //Ext.Msg.alert('', 'Please check your inputs. All fields are mandatory.');
+                        Ext.Msg.alert('', 'Veuillez vérifier votre formulaire. Tous les champs sont obligatoires.');
+                    }
+                    results['qi_'+item.get('id')] = pctgs.getValue();
+                    break;
+                case "7": //TroisCriteres dont 1
+                    var tri = Ext.getCmp('tri-'+item.get('id')).query('textfield');
+                    var res = [];
+                    for(var n in tri){
+                        var sItem = tri[n];
+                        if(sItem.getValue())
+                            res.push(sItem.getValue());
+                    };
+                    if (!res.length){
+                        //Ext.Msg.alert('','Please select an item in the list.');
+                        Ext.Msg.alert('','Veuillez renseigner au moins un item de la liste.');
+                        me._error = true;
+                    }
+                    results['qi_'+item.get('id')] = res;
                     break;
             }
         });

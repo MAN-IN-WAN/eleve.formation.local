@@ -23,7 +23,8 @@ Ext.application({
         'Question',
         'TypeQuestion',
         'TypeQuestionValeur',
-        'TypeReponse'
+        'TypeReponse',
+        'Region'
     ],
     stores: [
         'Categories',
@@ -31,7 +32,8 @@ Ext.application({
         'Questions',
         'TypeQuestions',
         'TypeQuestionValeurs',
-        'TypeReponses'
+        'TypeReponses',
+        'Regions'
     ],
     views: [
         'Loading',

@@ -296,7 +296,7 @@
      *  to adjust the base path for all bootstrap objects, or expanded into object form:
      *
      *  "bootstrap": {
-     *      "base": "${app.dir},
+     *      "base": "${app.dir}",
      *      "manifest": "bootstrap.json",
      *      "microloader": "bootstrap.js",
      *      "css": "bootstrap.css"

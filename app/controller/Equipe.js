@@ -10,7 +10,8 @@ Ext.define('eleve.controller.Equipe', {
         refs: {
             equipeFieldset: '[action=equipefieldset]',
             equipeInput: '#equipeinput',
-            equipeSubmit: '[action=validerequipe]'
+            equipeSubmit: '[action=validerequipe]',
+            regionSelect: '#regionselect'
         },
 
         control: {
@@ -22,7 +23,17 @@ Ext.define('eleve.controller.Equipe', {
     onSubmitEquipe: function () {
         var num = parseInt(this.getEquipeInput().getValue());
         console.log('submit equipe :'+ num);
-        if (num>0) {
+
+        var regId = parseInt(this.getRegionSelect().getValue());
+
+        if (num>0 && regId>0) {
+            var reg  = Ext.getStore('Regions').getById(regId);
+            console.log('reg',reg);
+            if(reg){
+                var regName = reg.get('Nom');
+                console.log('submit region :'+ regName);
+            }
+
             //vérification de l'équipe auprès du serveur
             var url = eleve.utils.Config.getSubmitTeamUrl();
             var me  = this;
@@ -30,14 +41,15 @@ Ext.define('eleve.controller.Equipe', {
             //masquage de la vue en cours pendant le chargement
             curview.setMasked({
                 indicator: false,
-                 message: 'Loading team ...'
+                 message: 'Chargement de l\'équipe ...'
             });
             Ext.Ajax.request({
                 url: url,
                 useDefaultXhrHeader: false,
                 method: 'POST',
                 params: {
-                    num: num
+                    num: num,
+                    reg: regName
                 },
                 success: function(response, opts) {
                     curview.setMasked(null);
@@ -51,22 +63,25 @@ Ext.define('eleve.controller.Equipe', {
                         eleve.utils.Config.setCurrentQuestion(obj.currentquestion);
 
                         //redirection
-                        me.redirectTo('map');
+                        me.redirectTo('wait');
                     }else{
                         console.log('Enregistrement Equipe erreur du serveur');
-                        Ext.Msg.alert('Error when setting the team', 'This team is already connected. Please check your number on table.');
+                        //Ext.Msg.alert('Error when setting the team', 'This team is already connected. Please check your number on table.');
+                        Ext.Msg.alert('Erreur lors de la définiton de l\'équipe', 'Cette équipe est déja connectée. Vérifiez votre numéro sur la table.');
                     }
                 },
                 failure: function(response, opts) {
                     curview.setMasked(null);
                     //suppression du masque
                     console.log('Enregistrement Equipe erreur ' + response.status);
-                    Ext.Msg.alert('Error when setting the team', 'There is a problem ... Please call the facilitator');
+                    //Ext.Msg.alert('Error when setting the team', 'There is a problem ... Please call the facilitator');
+                    Ext.Msg.alert('Erreur lors de la définiton de l\'équipe', 'Il y a un problème ... Veuillez appeler un animateur');
                 }
             });
         }else{
             console.log('Enregistrement Equipe erreur :' + num);
-            Ext.Msg.alert('Error when setting the team', 'Please check your team number');
+            //Ext.Msg.alert('Error when setting the team and/or region', 'Please check your team number / selected region');
+            Ext.Msg.alert('Erreur lors de la définiton de l\'équipe et/ou de la région', 'Vueillez vérifier votre numéro d\'équipe / région séléctionnée');
         }
     }
 });

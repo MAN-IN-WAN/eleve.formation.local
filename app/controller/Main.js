@@ -86,6 +86,11 @@ Ext.define('eleve.controller.Main', {
         var curview = this._indexViews['eleve.view.Question'];
         var results = curview.getResults();
 
+        for(var n in results){
+            results[n] = Ext.encode(results[n]);
+        }
+
+
         results.equipe = eleve.utils.Config.getSessionEquipe();
         results.session = eleve.utils.Config.getSessionId();
 
@@ -254,15 +259,15 @@ Ext.define('eleve.controller.Main', {
     /********************************
      * LOADING
      * ******************************/
-     _thingsToLoad: 6,
+     _thingsToLoad: 7,
       onLoadStore: function (msg) {
           console.log('load store',this._thingsToLoad, msg);
           this._thingsToLoad--;
           if (this._thingsToLoad==0){
               eleve.utils.Config.setLoaded(true);
-              this.redirectTo('setteam');
               this._loading = false;
               console.log('***** LOADED *****');
+              this.redirectTo('setteam');
           }
      },
     /********************************
@@ -340,7 +345,7 @@ Ext.define('eleve.controller.Main', {
                                 me.redirectTo('setteam');
                             }
                         );
-                    }else if (!obj.etape){
+                    // }else if (!obj.etape){
                         /*Ext.Msg.confirm(
                             "Etape incorrecte",
                             obj.msg,
@@ -389,7 +394,7 @@ Ext.define('eleve.controller.Main', {
                 var obj = Ext.decode(response.responseText);
                 if (obj.success){
                     //affichage du texte de chargement
-                    curview.down('[action=loadingText]').setHtml('<h1>Loading...</h1>');
+                    curview.down('[action=loadingText]').setHtml('<h1>Chargement...</h1>');
 
                     //enregistrement des informations de session
                     eleve.utils.Config.setSessionId(obj.id);
@@ -405,7 +410,7 @@ Ext.define('eleve.controller.Main', {
                         eleve.utils.Config.resetSession();
 
                     //affichage du texte attente de session
-                    curview.down('[action=loadingText]').setHtml('<h1>Waiting for session...</h1>');
+                    curview.down('[action=loadingText]').setHtml('<h1>En attente de session...</h1>');
 
                     //aucune session disponible
                     var task = Ext.create('Ext.util.DelayedTask', function() {
@@ -487,11 +492,24 @@ Ext.define('eleve.controller.Main', {
             }
         });
         typereponses.load();
+        var regions = Ext.getStore('Regions');
+        regions.on({
+            load: function () {
+                me.onLoadStore('regions');
+                regions.removeListener('load');
+            }
+        });
+        regions.load();
     },
     showRoot: function () {
         this.redirectTo('loading');
     },
     showSetEquipe: function () {
+        if (!eleve.utils.Config.getLoaded()) {
+            this.redirectTo('loading');
+            return;
+        }
+
         this.manageView(0, 'eleve.view.SetEquipe');
     },
     showFin: function () {
@@ -507,6 +525,7 @@ Ext.define('eleve.controller.Main', {
             return;
         }
         var question = this.getCurrentQuestion();
+        console.log('Question',question);
 
         var position = question.getMapPosition();
         var curview = this.manageView(0, 'eleve.view.Map');

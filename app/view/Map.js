@@ -21,7 +21,7 @@ Ext.define('eleve.view.Map', {
                 action: 'containerMap',
                 items: [
                     {
-                        html: '<i class="fa fa-map-marker fa-6">You are here</i>',
+                        html: '<i class="fa fa-map-marker fa-6">Vous êtes ici</i>',
                         style: 'position:absolute; z-index:10000; top:50%; left:50%;',
                         action: 'mapMarker'
                     },{
@@ -40,7 +40,7 @@ Ext.define('eleve.view.Map', {
         }
     },
     setPosition: function (position) {
-        var scale = 1;
+        var scale = 0.5;
         var me = this;
         var screenw = window.innerWidth;
         var screenh = window.innerHeight - 50;

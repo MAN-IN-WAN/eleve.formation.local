@@ -25,6 +25,7 @@ Ext.define('eleve.model.Categorie', {
             var mapStore = Ext.getStore('Maps');
             var map = mapStore.getById(this.get('MapId'));
 
+            console.log('categ',this);
             //c'est la catégorie significative
             return {
                 posx: (this.get('PosX')!=null)?this.get('PosX'): 0,

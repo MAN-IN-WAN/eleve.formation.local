@@ -5,6 +5,7 @@ Ext.define('eleve.model.Question', {
             {name: 'id',          type: 'int'},
             {name: 'Nom',      type: 'string'},
             {name: 'Image',      type: 'string'},
+            {name: 'Couleur',      type: 'string'},
             {name: 'Ordre', type: 'int'},
             {name: 'CategorieId', type: 'int'}
         ]
@@ -16,7 +17,9 @@ Ext.define('eleve.model.Question', {
     getMapPosition: function (){
         //recherche de la categorie significative de manière récursive
         var catStore = Ext.getStore('Categories');
+        console.log(this,this.get('CategorieId'));
         var cat = catStore.getById(this.get('CategorieId'));
+        console.log(cat);
         return  cat.getMapPosition();
     },
     /**
