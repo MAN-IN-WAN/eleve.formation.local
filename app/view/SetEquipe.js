@@ -45,7 +45,7 @@ Ext.define('eleve.view.SetEquipe', {
                         required      : true,
                         id: 'equipeinput'
                     },
-                    {
+                    /*{
                         xtype         : 'selectfield',
                         name : 'region',
                         label: 'Region',
@@ -53,7 +53,7 @@ Ext.define('eleve.view.SetEquipe', {
                         clearIcon: false,
                         required      : true,
                         id: 'regionselect'
-                    },
+                    },*/
                     {
                         xtype: 'button',
                         action: 'validerequipe',
@@ -67,7 +67,7 @@ Ext.define('eleve.view.SetEquipe', {
             initialize: function () {
                 console.log('init now');
                 this.down('[xtype=titlebar]').setTitle(eleve.utils.Config.getApplicationName());
-                var regStore = Ext.getStore('Regions');
+                /*var regStore = Ext.getStore('Regions');
                 var me = this;
                 var opts = new Array({
                     text:'Choississez une région',
@@ -80,7 +80,7 @@ Ext.define('eleve.view.SetEquipe', {
                     });
                     console.log(item);
                 });
-                me.down('[xtype=selectfield]').setOptions(opts);
+                me.down('[xtype=selectfield]').setOptions(opts);*/
 
             }
         }

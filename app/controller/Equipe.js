@@ -24,15 +24,7 @@ Ext.define('eleve.controller.Equipe', {
         var num = parseInt(this.getEquipeInput().getValue());
         console.log('submit equipe :'+ num);
 
-        var regId = parseInt(this.getRegionSelect().getValue());
-
-        if (num>0 && regId>0) {
-            var reg  = Ext.getStore('Regions').getById(regId);
-            console.log('reg',reg);
-            if(reg){
-                var regName = reg.get('Nom');
-                console.log('submit region :'+ regName);
-            }
+        if (num>0 ) {
 
             //vérification de l'équipe auprès du serveur
             var url = eleve.utils.Config.getSubmitTeamUrl();
@@ -48,8 +40,7 @@ Ext.define('eleve.controller.Equipe', {
                 useDefaultXhrHeader: false,
                 method: 'POST',
                 params: {
-                    num: num,
-                    reg: regName
+                    num: num
                 },
                 success: function(response, opts) {
                     curview.setMasked(null);
