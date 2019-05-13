@@ -122,34 +122,41 @@ Ext.define('eleve.controller.Main', {
 
                 //The function will start after 0 milliseconds - so we want to start instantly at first
                 task.delay(1000);
+            },
+            callback: function(opts, success, response){
+                var ret = Ext.decode(response.responseText);
+                //on vérifie la catégorie de bloquage
+                var cq = me.getCurrentQuestion();
+                var ccq = cq.getBloquage();
+                if(ret.next != undefined){
+                    var q = Ext.getStore('Questions');
+                    var nq = q.findRecord('Ordre', ret.next);
+                } else {
+                    var nq = me.getNextQuestion();
+                }
+
+                if (!nq){
+                    //redirection vers le message de fin
+                    me.redirectTo('fin');
+                    return;
+                }
+                var cnq = nq.getBloquage();
+
+                //Si il y a un bloquage et qu'il s'agit de la meme catégorie, alors il ne faut rien faire.
+                if ((!cnq&&!ccq)||(cnq&&ccq&&cnq.cat==ccq.cat)) {
+                    //si la position de la question courante est différente de la questio suivante, on affiche la carte
+                    if (cq.getPosition().cat!=nq.getPosition().cat){
+                        eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
+                        me.redirectTo('map');
+                    }else
+                        me.redirectTo('question/' + nq.get('id'));
+                }else {
+                    eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
+                    me.redirectTo('wait');
+                }
             }
         });
 
-
-        //on vérifie la catégorie de bloquage
-        var cq = this.getCurrentQuestion();
-        var ccq = cq.getBloquage();
-
-        var nq = this.getNextQuestion();
-        if (!nq){
-            //redirection vers le message de fin
-            me.redirectTo('fin');
-            return;
-        }
-        var cnq = nq.getBloquage();
-
-        //Si il y a un bloquage et qu'il s'agit de la meme catégorie, alors il ne faut rien faire.
-        if ((!cnq&&!ccq)||(cnq&&ccq&&cnq.cat==ccq.cat)) {
-            //si la position de la question courante est différente de la questio suivante, on affiche la carte
-            if (cq.getPosition().cat!=nq.getPosition().cat){
-                eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
-                me.redirectTo('map');
-            }else
-                me.redirectTo('question/' + nq.get('id'));
-        }else {
-            eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
-            me.redirectTo('wait');
-        }
     },
     /**
      * getCurrentQuestion

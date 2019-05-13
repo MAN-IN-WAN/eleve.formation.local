@@ -72,7 +72,7 @@ Ext.define('eleve.controller.Equipe', {
         }else{
             console.log('Enregistrement Equipe erreur :' + num);
             //Ext.Msg.alert('Error when setting the team and/or region', 'Please check your team number / selected region');
-            Ext.Msg.alert('Erreur lors de la définiton de l\'équipe et/ou de la région', 'Vueillez vérifier votre numéro d\'équipe / région séléctionnée');
+            Ext.Msg.alert('Erreur lors de la définiton de l\'équipe et/ou de la région', 'Veuillez vérifier votre numéro d\'équipe / région séléctionnée');
         }
     }
 });

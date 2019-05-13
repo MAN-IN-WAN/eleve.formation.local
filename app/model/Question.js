@@ -5,7 +5,8 @@ Ext.define('eleve.model.Question', {
             {name: 'id',          type: 'int'},
             {name: 'Nom',      type: 'string'},
             {name: 'Image',      type: 'string'},
-            {name: 'Couleur',      type: 'string'},
+            'Parametres',
+            "Prefixe",
             {name: 'Ordre', type: 'int'},
             {name: 'CategorieId', type: 'int'}
         ]

@@ -5,6 +5,8 @@ Ext.define('eleve.model.TypeQuestion', {
             {name: 'id',          type: 'int'},
             {name: 'Nom',      type: 'string'},
             {name: 'TypeReponse',      type: 'string'},
+            'Parametres',
+            'MultiPart',
             {name: 'AfficheOui',      type: 'bool'},
             {name: 'AfficheNon',      type: 'bool'},
             {name: 'QuestionId',      type: 'int'}
