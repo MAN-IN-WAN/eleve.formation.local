@@ -266,7 +266,7 @@ Ext.define('eleve.controller.Main', {
     /********************************
      * LOADING
      * ******************************/
-     _thingsToLoad: 7,
+     _thingsToLoad: 6,
       onLoadStore: function (msg) {
           console.log('load store',this._thingsToLoad, msg);
           this._thingsToLoad--;
@@ -499,14 +499,14 @@ Ext.define('eleve.controller.Main', {
             }
         });
         typereponses.load();
-        var regions = Ext.getStore('Regions');
+        /*var regions = Ext.getStore('Regions');
         regions.on({
             load: function () {
                 me.onLoadStore('regions');
                 regions.removeListener('load');
             }
         });
-        regions.load();
+        regions.load();*/
     },
     showRoot: function () {
         this.redirectTo('loading');
