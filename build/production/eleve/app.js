@@ -28692,7 +28692,7 @@ Ext.cmd.derive('eleve.model.Categorie', Ext.data.Model, {config:{fields:[{name:'
   }
 }}, 0, 0, 0, 0, 0, 0, [eleve.model, 'Categorie'], 0);
 Ext.cmd.derive('eleve.model.Map', Ext.data.Model, {config:{fields:[{name:'id', type:'int'}, {name:'Nom', type:'string'}, {name:'Fichier', type:'string'}, {name:'Largeur', type:'int'}, {name:'Hauteur', type:'int'}]}}, 0, 0, 0, 0, 0, 0, [eleve.model, 'Map'], 0);
-Ext.cmd.derive('eleve.model.Question', Ext.data.Model, {config:{fields:[{name:'id', type:'int'}, {name:'Nom', type:'string'}, {name:'Image', type:'string'}, {name:'Couleur', type:'string'}, {name:'Ordre', type:'int'}, {name:'CategorieId', type:'int'}]}, getMapPosition:function() {
+Ext.cmd.derive('eleve.model.Question', Ext.data.Model, {config:{fields:[{name:'id', type:'int'}, {name:'Nom', type:'string'}, {name:'Image', type:'string'}, 'Parametres', 'Prefixe', {name:'Ordre', type:'int'}, {name:'CategorieId', type:'int'}]}, getMapPosition:function() {
   var catStore = Ext.getStore('Categories');
   console.log(this, this.get('CategorieId'));
   var cat = catStore.getById(this.get('CategorieId'));
@@ -28707,7 +28707,7 @@ Ext.cmd.derive('eleve.model.Question', Ext.data.Model, {config:{fields:[{name:'i
   var cat = catStore.getById(this.get('CategorieId'));
   return cat.getPosition();
 }}, 0, 0, 0, 0, 0, 0, [eleve.model, 'Question'], 0);
-Ext.cmd.derive('eleve.model.TypeQuestion', Ext.data.Model, {config:{fields:[{name:'id', type:'int'}, {name:'Nom', type:'string'}, {name:'TypeReponse', type:'string'}, {name:'AfficheOui', type:'bool'}, {name:'AfficheNon', type:'bool'}, {name:'QuestionId', type:'int'}]}}, 0, 0, 0, 0, 0, 0, [eleve.model, 'TypeQuestion'], 0);
+Ext.cmd.derive('eleve.model.TypeQuestion', Ext.data.Model, {config:{fields:[{name:'id', type:'int'}, {name:'Nom', type:'string'}, {name:'TypeReponse', type:'string'}, 'Parametres', 'MultiPart', {name:'AfficheOui', type:'bool'}, {name:'AfficheNon', type:'bool'}, {name:'QuestionId', type:'int'}]}}, 0, 0, 0, 0, 0, 0, [eleve.model, 'TypeQuestion'], 0);
 Ext.cmd.derive('eleve.model.TypeQuestionValeur', Ext.data.Model, {config:{fields:[{name:'id', type:'int'}, {name:'Valeur', type:'string'}, {name:'Image', type:'string'}, {name:'TypeQuestionId', type:'int'}]}}, 0, 0, 0, 0, 0, 0, [eleve.model, 'TypeQuestionValeur'], 0);
 Ext.cmd.derive('eleve.model.TypeReponse', Ext.data.Model, {config:{fields:[{name:'id', type:'int'}, {name:'Nom', type:'string'}, {name:'Description', type:'text'}]}}, 0, 0, 0, 0, 0, 0, [eleve.model, 'TypeReponse'], 0);
 Ext.cmd.derive('eleve.model.Region', Ext.data.Model, {config:{fields:[{name:'id', type:'int'}, {name:'Nom', type:'string'}]}}, 0, 0, 0, 0, 0, 0, [eleve.model, 'Region'], 0);
@@ -28758,26 +28758,33 @@ Ext.cmd.derive('eleve.controller.Main', Ext.app.Controller, {config:{viewCache:[
       me.saveReponse();
     }, this);
     task.delay(1000);
-  }});
-  var cq = this.getCurrentQuestion();
-  var ccq = cq.getBloquage();
-  var nq = this.getNextQuestion();
-  if (!nq) {
-    me.redirectTo('fin');
-    return;
-  }
-  var cnq = nq.getBloquage();
-  if (!cnq && !ccq || cnq && ccq && cnq.cat == ccq.cat) {
-    if (cq.getPosition().cat != nq.getPosition().cat) {
-      eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
-      me.redirectTo('map');
+  }, callback:function(opts, success, response) {
+    var ret = Ext.decode(response.responseText);
+    var cq = me.getCurrentQuestion();
+    var ccq = cq.getBloquage();
+    if (ret.next != undefined) {
+      var q = Ext.getStore('Questions');
+      var nq = q.findRecord('Ordre', ret.next);
     } else {
-      me.redirectTo('question/' + nq.get('id'));
+      var nq = me.getNextQuestion();
     }
-  } else {
-    eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
-    me.redirectTo('wait');
-  }
+    if (!nq) {
+      me.redirectTo('fin');
+      return;
+    }
+    var cnq = nq.getBloquage();
+    if (!cnq && !ccq || cnq && ccq && cnq.cat == ccq.cat) {
+      if (cq.getPosition().cat != nq.getPosition().cat) {
+        eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
+        me.redirectTo('map');
+      } else {
+        me.redirectTo('question/' + nq.get('id'));
+      }
+    } else {
+      eleve.utils.Config.setCurrentQuestion(nq.get('Ordre'));
+      me.redirectTo('wait');
+    }
+  }});
 }, getCurrentQuestion:function() {
   var q = Ext.getStore('Questions');
   var nq = q.findRecord('Ordre', eleve.utils.Config.getCurrentQuestion());
@@ -28832,7 +28839,7 @@ Ext.cmd.derive('eleve.controller.Main', Ext.app.Controller, {config:{viewCache:[
   Ext.Viewport.setActiveItem(commview);
   this._currentLevel = level;
   return commview;
-}, _thingsToLoad:7, onLoadStore:function(msg) {
+}, _thingsToLoad:6, onLoadStore:function(msg) {
   console.log('load store', this._thingsToLoad, msg);
   this._thingsToLoad--;
   if (this._thingsToLoad == 0) {
@@ -28964,12 +28971,6 @@ Ext.cmd.derive('eleve.controller.Main', Ext.app.Controller, {config:{viewCache:[
     typereponses.removeListener('load');
   }});
   typereponses.load();
-  var regions = Ext.getStore('Regions');
-  regions.on({load:function() {
-    me.onLoadStore('regions');
-    regions.removeListener('load');
-  }});
-  regions.load();
 }, showRoot:function() {
   this.redirectTo('loading');
 }, showSetEquipe:function() {
@@ -29032,7 +29033,7 @@ Ext.cmd.derive('eleve.controller.Equipe', Ext.app.Controller, {config:{viewCache
     }});
   } else {
     console.log('Enregistrement Equipe erreur :' + num);
-    Ext.Msg.alert("Erreur lors de la définiton de l'équipe et/ou de la région", "Vueillez vérifier votre numéro d'équipe / région séléctionnée");
+    Ext.Msg.alert("Erreur lors de la définiton de l'équipe et/ou de la région", "Veuillez vérifier votre numéro d'équipe / région séléctionnée");
   }
 }}, 0, 0, 0, 0, 0, 0, [eleve.controller, 'Equipe'], 0);
 Ext.cmd.derive('eleve.view.Wait', Ext.Panel, {config:{title:'Chargement des données', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getAppTitle()}, {html:'\x3ci class\x3d"fa fa-users fa-6"\x3e\x3c/i\x3e', style:'position:absolute; z-index:1; top:35%; left:50%;', action:'mapMarker'}, {width:'100%', style:'position:absolute;top:35%;z-index:1;text-align: center;', action:'loadingText', html:''}], listeners:{painted:function() {
@@ -29091,6 +29092,7 @@ setRecord:function(record) {
   this.resetView();
   this.down('[xtype\x3dtitlebar]').setTitle(eleve.utils.Config.getApplicationName());
   console.log('affichage de la question', record);
+  console.error('++' + record.get('Prefixe') + '++');
   if (record) {
     var catStore = Ext.getStore('Categories');
     catStore.clearFilter();
@@ -29109,8 +29111,15 @@ setRecord:function(record) {
     var me = this;
     tqStore.clearFilter();
     tqStore.filter(new Ext.util.Filter({property:'QuestionId', value:record.get('id'), exactMatch:true}));
+    var totalQuestions = tqStore.getCount();
+    var parts = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
     tqStore.each(function(item, index) {
-      console.log(item);
+      var nbTq = 1;
+      if (item.get('MultiPart')) {
+        nbTq = 4;
+      }
+      console.log('\x3e\x3e\x3e\x3e\x3e\x3e\x3e\x3e\x3e\x3e\x3e', item, index, nbTq);
+      var itemIndex = index;
       switch(item.get('TypeReponse')) {
         case '1':
           if (item.get('Nom').length) {
@@ -29136,7 +29145,10 @@ setRecord:function(record) {
           Ext.getCmp('texte-' + item.get('id')).focus();
           break;
         case '4':
-          me.down('[action\x3dquestionContainer]').add({xtype:'fieldset', id:'booleen-' + item.get('id'), cls:'booleen-fieldset', items:[{xtype:'radiofield', name:'boolean', value:'1', label:'Oui', cls:'booleen-oui', listeners:{change:function(tf) {
+          if (item.get('Nom')) {
+            me.down('[action\x3dquestionContainer]').add({html:'\x3ch4\x3e' + item.get('Nom') + '\x3c/h4\x3e'});
+          }
+          me.down('[action\x3dquestionContainer]').add({xtype:'fieldset', id:'booleen-' + item.get('id'), cls:'booleen-fieldset', items:[{xtype:'radiofield', name:'boolean_' + item.get('id'), value:'1', label:'Oui', cls:'booleen-oui', listeners:{change:function(tf) {
             console.log('OUI toggle change', tf.isChecked());
             if (tf.isChecked()) {
               Ext.each(me.query('[action\x3dAfficheOui]'), function(it2) {
@@ -29153,17 +29165,19 @@ setRecord:function(record) {
                 it3.setHidden(false);
               });
             }
-          }}}, {xtype:'radiofield', name:'boolean', value:'2', cls:'booleen-non', label:'Non'}]});
+          }}}, {xtype:'radiofield', name:'boolean_' + item.get('id'), value:'2', cls:'booleen-non', label:'Non'}]});
           break;
         case '5':
           var tqv = Ext.getStore('TypeQuestionValeurs');
           tqv.filter('TypeQuestionId', item.get('id'));
           var opts = [];
+          console.log(tqv);
           tqv.each(function(item, index) {
-            opts.push({name:'question_' + record.get('Id'), value:item.get('id'), label:item.get('Image').length ? '\x3cimg style\x3d"float: left;margin:0 20px;" src\x3d"' + _prefixDomain + '/' + item.get('Image') + '" /\x3e' + item.get('Valeur') : item.get('Valeur')});
+            console.log(item);
+            opts.push({name:'question_' + record.get('id'), value:item.get('id'), label:item.get('Image').length ? '\x3cimg style\x3d"float: left;margin:0 20px;" src\x3d"' + _prefixDomain + '/' + item.get('Image') + '" /\x3e' + item.get('Valeur') : item.get('Valeur')});
           });
           if (item.get('Nom')) {
-            me.down('[action\x3dquestionContainer]').add({html:'\x3ch1\x3e' + item.get('Nom') + '\x3c/h1\x3e'});
+            me.down('[action\x3dquestionContainer]').add({html:'\x3ch4\x3e' + item.get('Nom') + '\x3c/h4\x3e'});
           }
           me.down('[action\x3dquestionContainer]').add({xtype:'fieldset', id:'selection-' + item.get('id'), defaults:{xtype:'radiofield', labelWidth:'70%'}, items:opts});
           break;
@@ -29184,6 +29198,272 @@ setRecord:function(record) {
               break;
           }me.down('[action\x3dquestionContainer]').add([{xtype:'fieldset', id:'tri-' + item.get('id'), items:[{xtype:'textfield', label:label, cls:'triblock', labelCls:classe, labelWidth:'80px', required:true, id:'tri-' + item.get('id') + '-1'}, {xtype:'textfield', label:label, cls:'triblock', labelCls:classe, labelWidth:'80px', id:'tri-' + item.get('id') + '-2'}, {xtype:'textfield', label:label, cls:'triblock', labelCls:classe, labelWidth:'80px', id:'tri-' + item.get('id') + '-3'}]}]);
           break;
+        case '8':
+          console.log('rrrr', item, record);
+          var params = item.get('Parametres');
+          var color = '#888';
+          if (params.Couleur != undefined) {
+            color = params.Couleur;
+          }
+          var inputs = params.Titres;
+          var label = '';
+          var disabled = false;
+          var value = 0;
+          me.down('[action\x3dquestionContainer]').add([{xtype:'panel', id:'cerclescore-' + item.get('id') + '-title', title:item.get('Nom'), html:'\x3ch4\x3e' + item.get('Nom') + '\x3c/h4\x3e', style:{margin:'15px 0', maxWidth:'300px'}}]);
+          for (var i = 0; i < inputs.length; i++) {
+            label = inputs[i];
+            var its = [{xtype:'panel', flex:1, html:label, style:{color:color, textAlign:'center', padding:'5px', borderBottom:'1px solid #ddd'}, cls:'cerclescoreHeader'}];
+            for (var m = params.Min; m <= params.Max; m++) {
+              var it = {xtype:'radiofield', label:'' + m, cls:'cerclescoreradio', labelCls:'cerclescoreradiolabel', labelWidth:'auto', name:'cerclescore-' + item.get('id') + '-' + i, id:'cerclescore-' + item.get('id') + '-' + i + '-' + m, data:{next:i + 1}, listeners:{change:function(tf) {
+                console.log(tf);
+                if (tf.isChecked()) {
+                  var elem = tf.element;
+                  var itlock = 0;
+                  var elemPrev = tf.element;
+                  while (elemPrev != undefined && elemPrev != null && itlock < 10) {
+                    elemPrev.down('.cerclescoreradiolabel').addCls('active');
+                    var prev = elemPrev.prev('.cerclescoreradio');
+                    elemPrev = prev;
+                    itlock++;
+                  }
+                  var itlock2 = 0;
+                  var elemNext = tf.element;
+                  while (elemNext != undefined && elemNext != null && itlock2 < 10) {
+                    var next = elemNext.next('.cerclescoreradio');
+                    elemNext = next;
+                    if (next) {
+                      elemNext.down('.cerclescoreradiolabel').removeCls('active');
+                    }
+                    itlock2++;
+                  }
+                  var par = tf.element.parent('.cerclescore-fieldset');
+                  var next = tf.element.parent('.cerclescore-fieldset').next('.cerclescore-fieldset');
+                  var off = [0, 1];
+                  if (next) {
+                    off = next.getOffsetsTo(par);
+                  }
+                  var scroller = me.down('[action\x3dscrollableContainer]').getScrollable().getScroller();
+                  var data = tf.getData();
+                  if (totalQuestions - 1 == itemIndex && data.next > inputs.length - 3) {
+                    return;
+                  }
+                  if (data.next < inputs.length) {
+                    scroller.scrollBy(0, off[1], true);
+                  } else {
+                    scroller.scrollBy(0, 132, true);
+                  }
+                } else {
+                }
+              }}, value:m};
+              its.push(it);
+            }
+            me.down('[action\x3dquestionContainer]').add([{xtype:'fieldset', id:'cerclescore-' + item.get('id') + '-' + i, style:{marginBottom:'15px', borderColor:color}, cls:'cerclescore-fieldset', items:its}]);
+          }
+          break;
+        case '9':
+          var params = item.get('Parametres');
+          var bgolor = '#888';
+          if (params.Couleur != undefined) {
+            bgColor = params.Couleur;
+          }
+          var inputs = params.Titres;
+          var label = '';
+          me.down('[action\x3dquestionContainer]').add([{xtype:'panel', id:'plusmoins-' + item.get('id'), scrollable:'horizontal', height:'70px', style:{marginBottom:'15px', overflow:'hidden'}}]);
+          me.down('#plusmoins-' + item.get('id')).add([{xtype:'panel', id:'plusmoins-' + item.get('id') + 'scroller', width:'900px', style:{position:'relative'}, cls:'flexContainer bgLine'}]);
+          for (var i = 0; i < inputs.length; i++) {
+            label = inputs[i];
+            me.down('#plusmoins-' + item.get('id') + 'scroller').add([{xtype:'fieldset', id:'plusmoins-' + item.get('id') + '-' + i, width:'30%', height:'60px', style:{display:'inline-block'}, items:[{xtype:'panel', flex:1, html:label, style:{backgroundColor:bgColor, textAlign:'center', padding:'5px'}, cls:'plusmoinsHeader'}, {xtype:'radiofield', label:'--', cls:'plusmoins', labelCls:'plusmoinslabel', required:true, labelWidth:'auto', name:'plusmoins-' + item.get('id') + '-' + i, id:'plusmoins-' + 
+            item.get('id') + '-' + i + '-1', data:{next:i + 1}, listeners:{change:function(tf) {
+              if (tf.isChecked()) {
+                tf.label.addCls('active');
+                var scroller = me.down('#plusmoins-' + item.get('id')).getScrollable().getScroller();
+                var data = tf.getData();
+                if (data.next < inputs.length) {
+                  scroller.scrollTo(300 * data.next, 0, true);
+                } else {
+                }
+              } else {
+                tf.label.removeCls('active');
+              }
+            }}, value:0}, {xtype:'radiofield', label:'-', cls:'plusmoins', labelCls:'plusmoinslabel', required:true, labelWidth:'auto', name:'plusmoins-' + item.get('id') + '-' + i, id:'plusmoins-' + item.get('id') + '-' + i + '-2', data:{next:i + 1}, listeners:{change:function(tf) {
+              if (tf.isChecked()) {
+                tf.label.addCls('active');
+                var scroller = me.down('#plusmoins-' + item.get('id')).getScrollable().getScroller();
+                var data = tf.getData();
+                if (data.next < inputs.length) {
+                  scroller.scrollTo(300 * data.next, 0, true);
+                } else {
+                }
+              } else {
+                tf.label.removeCls('active');
+              }
+            }}, value:1}, {xtype:'radiofield', label:'\x3d', cls:'plusmoins', labelCls:'plusmoinslabel', required:true, labelWidth:'auto', name:'plusmoins-' + item.get('id') + '-' + i, id:'plusmoins-' + item.get('id') + '-' + i + '-3', data:{next:i + 1}, listeners:{change:function(tf) {
+              if (tf.isChecked()) {
+                tf.label.addCls('active');
+                var scroller = me.down('#plusmoins-' + item.get('id')).getScrollable().getScroller();
+                var data = tf.getData();
+                if (data.next < inputs.length) {
+                  scroller.scrollTo(300 * data.next, 0, true);
+                } else {
+                }
+              } else {
+                tf.label.removeCls('active');
+              }
+            }}, value:2}, {xtype:'radiofield', label:'+', cls:'plusmoins', labelCls:'plusmoinslabel', required:true, labelWidth:'auto', name:'plusmoins-' + item.get('id') + '-' + i, id:'plusmoins-' + item.get('id') + '-' + i + '-4', data:{next:i + 1}, listeners:{change:function(tf) {
+              if (tf.isChecked()) {
+                tf.label.addCls('active');
+                var scroller = me.down('#plusmoins-' + item.get('id')).getScrollable().getScroller();
+                var data = tf.getData();
+                if (data.next < inputs.length) {
+                  scroller.scrollTo(300 * data.next, 0, true);
+                } else {
+                }
+              } else {
+                tf.label.removeCls('active');
+              }
+            }}, value:3}, {xtype:'radiofield', label:'++', cls:'plusmoins', labelCls:'plusmoinslabel', required:true, labelWidth:'auto', name:'plusmoins-' + item.get('id') + '-' + i, id:'plusmoins-' + item.get('id') + '-' + i + '-5', data:{next:i + 1}, listeners:{change:function(tf) {
+              if (tf.isChecked()) {
+                tf.label.addCls('active');
+                var scroller = me.down('#plusmoins-' + item.get('id')).getScrollable().getScroller();
+                var data = tf.getData();
+                if (data.next < inputs.length) {
+                  scroller.scrollTo(300 * data.next, 0, true);
+                } else {
+                }
+              } else {
+                tf.label.removeCls('active');
+              }
+            }}, value:4}]}]);
+          }
+          break;
+        case '10':
+          var params = item.get('Parametres');
+          var color = '#888';
+          var inputs = params.Titres;
+          var label = '';
+          var disabled = false;
+          var value = 0;
+          me.down('[action\x3dquestionContainer]').add([{xtype:'panel', id:'cerclescore-' + item.get('id') + '-title', title:item.get('Nom'), html:'\x3ch4\x3e' + item.get('Nom') + '\x3c/h4\x3e', style:{margin:'15px 0', maxWidth:'300px'}}]);
+          for (var nb = 0; nb < nbTq; nb++) {
+            if (nbTq > 1) {
+              me.down('[action\x3dquestionContainer]').add([{xtype:'panel', id:'cerclescore-' + item.get('id') + '-stitle-' + nb, title:item.get('Nom'), html:'\x3ch5\x3e Participant ' + parts[parseInt(nb)] + '\x3c/h5\x3e', style:{margin:'5px 0', maxWidth:'300px'}}]);
+            }
+            for (var i = 0; i < inputs.length; i++) {
+              if (params.Couleurs != undefined && params.Couleurs[i] != undefined) {
+                color = params.Couleurs[i];
+              }
+              label = inputs[i];
+              var its = [{xtype:'panel', flex:1, html:label, style:{color:color, textAlign:'center', padding:'5px', borderBottom:'1px solid #ddd'}, cls:'graphscoreHeader'}];
+              for (var m = params.Min; m <= params.Max; m++) {
+                var it = {xtype:'radiofield', label:'' + m, cls:'graphscoreradio', labelCls:'graphscoreradiolabel', labelWidth:'auto', name:'graphscore-' + item.get('id') + '-' + i + '-' + nb, id:'graphscore-' + item.get('id') + '-' + i + '-' + nb + '-' + m, data:{next:i + 1, nextTq:nb}, listeners:{change:function(tf) {
+                  if (tf.isChecked()) {
+                    tf.label.addCls('active');
+                    var scroller = me.down('[action\x3dscrollableContainer]').getScrollable().getScroller();
+                    var data = tf.getData();
+                    if (totalQuestions - 1 == itemIndex && data.next > inputs.length - 3 && data.nextTq == nbTq - 1) {
+                      return;
+                    }
+                    if (data.next < inputs.length) {
+                      scroller.scrollBy(0, 90, true);
+                    } else {
+                      scroller.scrollBy(0, 132, true);
+                    }
+                  } else {
+                    tf.label.removeCls('active');
+                  }
+                }}, value:m};
+                its.push(it);
+              }
+              me.down('[action\x3dquestionContainer]').add([{xtype:'fieldset', id:'graphscore-' + item.get('id') + '-' + i + '-' + nb, style:{marginBottom:'15px', borderColor:color}, cls:'graphscore-fieldset', items:its}]);
+            }
+          }
+          break;
+        case '11':
+          console.log(item.get('TypeReponse'), record);
+          break;
+        case '12':
+          var params = item.get('Parametres');
+          var color = '#888';
+          var inputs = params.Titres;
+          var label = '';
+          var disabled = false;
+          var value = 0;
+          for (var nb = 0; nb < nbTq; nb++) {
+            if (nbTq > 1) {
+              me.down('[action\x3dquestionContainer]').add([{xtype:'panel', id:'multipercent-' + item.get('id') + '-stitle-' + nb, title:item.get('Nom'), html:'\x3ch5\x3e Participant ' + parts[parseInt(nb)] + '\x3c/h5\x3e', style:{margin:'5px 0', maxWidth:'300px'}}]);
+            }
+            me.down('[action\x3dquestionContainer]').add([{xtype:'fieldset', id:'multipercent-' + item.get('id') + '-' + nb}]);
+            for (var i = 0; i < inputs.length; i++) {
+              if (i == inputs.length - 1) {
+                disabled = true;
+                value = 100;
+              } else {
+                disabled = false;
+                value = 0;
+              }
+              if (params.Couleurs != undefined && params.Couleurs[i] != undefined) {
+                color = params.Couleurs[i];
+              }
+              label = inputs[i];
+              console.error('in' + label);
+              me.down('#multipercent-' + item.get('id') + '-' + nb).add([{xtype:'sliderfield', label:label, cls:'multipercent', labelCls:'multipercentlabel', name:'multipercent-' + item.get('id') + '-' + i + '-' + nb, id:'multipercent-' + item.get('id') + '-' + i + '-' + nb + '_slider', style:{color:color, marginBottom:'5px', border:'none !important'}, disabled:disabled, labelWidth:'30%', value:value, data:{nb:nb}, listeners:{change:function(tf) {
+                var data = tf.getData();
+                var otherFields = me.down('#multipercent-' + item.get('id') + '-' + data.nb).query('sliderfield');
+                var sum = 0;
+                for (var m = 0; m < otherFields.length - 1; m++) {
+                  sum += parseInt(otherFields[m].getValue());
+                }
+                if (sum <= 100) {
+                  otherFields[otherFields.length - 1].setValue(100 - sum);
+                } else {
+                  var diff = sum - 100;
+                  otherFields[otherFields.length - 1].setValue(0);
+                  tf.setValue(parseInt(tf.getValue()) - diff);
+                }
+                for (var n = 0; n < otherFields.length; n++) {
+                  var val = otherFields[n].getValue();
+                  var dis = otherFields[n].getName();
+                  var div = Ext.get(dis + '_show').down('span');
+                  div.setHtml(val);
+                }
+              }}, html:'\x3cp id\x3d"multipercent-' + item.get('id') + '-' + i + '-' + nb + '_show"\x3e\x3cspan\x3e' + value + '\x3c/span\x3e%\x3c/p\x3e'}]);
+            }
+          }
+          console.log(item.get('TypeReponse'), record);
+          break;
+        case '13':
+          var params = item.get('Parametres');
+          var qty = 3;
+          if (params != null && params.Quantite != undefined) {
+            qty = params.Quantite;
+          }
+          var tqv = Ext.getStore('TypeQuestionValeurs');
+          tqv.filter('TypeQuestionId', item.get('id'));
+          var opts = [];
+          var qst = item;
+          tqv.each(function(item, index) {
+            opts.push({name:'multiselect' + record.get('Id'), value:item.get('id'), label:item.get('Image').length ? '\x3cimg style\x3d"float: left;margin:0 20px;" src\x3d"' + _prefixDomain + '/' + item.get('Image') + '" /\x3e' + item.get('Valeur') : item.get('Valeur'), listeners:{change:function(tf) {
+              console.log(tf, tf.isChecked());
+              if (tf.isChecked()) {
+                var selection = me.down('#multiselect-' + qst.get('id')).query('checkboxfield');
+                var temp = [];
+                for (var n = 0; n < selection.length; n++) {
+                  if (selection[n].isChecked()) {
+                    temp.push(selection[n].getValue());
+                  }
+                }
+                if (temp.length > qty) {
+                  Ext.Msg.alert('', 'Vous avez déjà sélectionné ' + qty + ' item' + (qty > 1 ? 's' : '') + '.');
+                  tf.uncheck();
+                }
+              }
+            }}});
+          });
+          if (item.get('Nom')) {
+            me.down('[action\x3dquestionContainer]').add({html:'\x3ch4\x3e' + item.get('Nom') + '\x3c/h4\x3e'});
+          }
+          me.down('[action\x3dquestionContainer]').add({xtype:'fieldset', id:'multiselect-' + item.get('id'), defaults:{xtype:'checkboxfield', labelWidth:'70%'}, items:opts});
+          break;
       }
     });
   }
@@ -29196,6 +29476,11 @@ setRecord:function(record) {
   var me = this;
   tqStore.filter('QuestionId', record.get('id'));
   tqStore.each(function(item, index) {
+    var nbTq = 1;
+    if (item.get('MultiPart')) {
+      nbTq = 4;
+    }
+    console.log('\x3e\x3e\x3e\x3e\x3e\x3e\x3e\x3e\x3e\x3e\x3e', item, index, nbTq);
     switch(item.get('TypeReponse')) {
       case '1':
         var jauge = $('#jauge-' + item.get('id'));
@@ -29253,6 +29538,105 @@ setRecord:function(record) {
         }
         results['qi_' + item.get('id')] = res;
         break;
+      case '8':
+        var params = item.get('Parametres');
+        var inputs = params.Titres;
+        var res = [];
+        for (var i = 0; i < inputs.length; i++) {
+          var temp = Ext.getCmp('cerclescore-' + item.get('id') + '-' + i).query('radiofield');
+          console.log(temp, temp[0].getGroupValue());
+          if (temp[0].getGroupValue() !== false && temp[0].getGroupValue() !== null && temp[0].getGroupValue() !== undefined) {
+            res.push(temp[0].getGroupValue());
+          }
+        }
+        if (res.length != inputs.length) {
+          Ext.Msg.alert('', 'Veuillez noter chacun des aspects.');
+          me._error = true;
+        }
+        results['qi_' + item.get('id')] = res;
+        break;
+      case '9':
+        var params = item.get('Parametres');
+        var inputs = params.Titres;
+        var res = [];
+        for (var i = 0; i < inputs.length; i++) {
+          var temp = Ext.getCmp('plusmoins-' + item.get('id') + '-' + i).query('radiofield');
+          if (temp[0].getGroupValue() !== false && temp[0].getGroupValue() !== null && temp[0].getGroupValue() !== undefined) {
+            res.push(temp[0].getGroupValue());
+          }
+        }
+        if (res.length != inputs.length) {
+          Ext.Msg.alert('', "Veuillez donner une note à l'ensemble des champs.");
+          me._error = true;
+        }
+        results['qi_' + item.get('id')] = res;
+        break;
+      case '10':
+        var params = item.get('Parametres');
+        var inputs = params.Titres;
+        var res = [];
+        for (var nb = 0; nb < nbTq; nb++) {
+          var midRes = [];
+          for (var i = 0; i < inputs.length; i++) {
+            var temp = Ext.getCmp('graphscore-' + item.get('id') + '-' + i + '-' + nb).query('radiofield');
+            if (temp[0].getGroupValue() !== false && temp[0].getGroupValue() !== null && temp[0].getGroupValue() !== undefined) {
+              midRes.push(temp[0].getGroupValue());
+            }
+          }
+          if (midRes.length == inputs.length) {
+            res.push(midRes);
+          }
+        }
+        if (res.length < 1) {
+          if (nbTq == 1) {
+            Ext.Msg.alert('', 'Veuillez noter chacun des aspects.');
+          } else {
+            Ext.Msg.alert('', "Veuillez noter chacun des pour au moins l'un des participants.");
+          }
+          me._error = true;
+        }
+        results['qi_' + item.get('id')] = res;
+        break;
+      case '11':
+        console.log('***********************************************************', item, record);
+        break;
+      case '12':
+        var res = [];
+        for (var nb = 0; nb < nbTq; nb++) {
+          var sum = 0;
+          var midRes = [];
+          var fields = me.down('#multipercent-' + item.get('id') + '-' + nb).query('sliderfield');
+          for (var m = 0; m < fields.length; m++) {
+            midRes.push(parseInt(fields[m].getValue()));
+            sum += parseInt(fields[m].getValue());
+          }
+          if (sum != 100) {
+            Ext.Msg.alert('', 'La somme des pourcentages doit valoir 100%');
+            me._error = true;
+          } else {
+            res.push(midRes);
+          }
+        }
+        results['qi_' + item.get('id')] = res;
+        break;
+      case '13':
+        var res = [];
+        var params = item.get('Parametres');
+        var qty = 3;
+        if (params != null && params.Quantite != undefined) {
+          qty = params.Quantite;
+        }
+        var selection = me.down('#multiselect-' + item.get('id')).query('checkboxfield');
+        for (var n = 0; n < selection.length; n++) {
+          if (selection[n].isChecked()) {
+            res.push(selection[n].getValue());
+          }
+        }
+        if (res.length != qty) {
+          Ext.Msg.alert('', 'Veuillez choisir ' + qty + ' item' + (qty > 1 ? 's' : '') + '.');
+          me._error = true;
+        }
+        results['qi_' + item.get('id')] = res;
     }
   });
   if (this._error) {

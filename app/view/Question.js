@@ -765,6 +765,7 @@ Ext.define('eleve.view.Question', {
                         var disabled = false;
                         var value = 0;
                         for(var nb = 0; nb < nbTq; nb ++) {
+
                             if (nbTq > 1) {
                                 me.down('[action=questionContainer]').add(
                                     [{
@@ -773,15 +774,18 @@ Ext.define('eleve.view.Question', {
                                         title: item.get('Nom'),
                                         html: '<h5> Participant ' + parts[parseInt(nb)] + '</h5>',
                                         style: {margin: '5px 0', maxWidth: "300px"}
-                                    },
-                                    {
-                                        xtype: 'fieldset',
-                                        id: 'multipercent-' + item.get('id') + '-' + nb
                                     }]
                                 );
                             }
+                            me.down('[action=questionContainer]').add(
+                                [{
+                                    xtype: 'fieldset',
+                                    id: 'multipercent-' + item.get('id') + '-' + nb
+                                }]
+                            );
 
                             for (var i = 0; i < inputs.length; i++) {
+
                                 if (i == (inputs.length - 1)) {
                                     disabled = true;
                                     value = 100;
@@ -793,6 +797,7 @@ Ext.define('eleve.view.Question', {
                                     color = params.Couleurs[i];
                                 }
                                 label = inputs[i];
+                                console.error('in'+label);
                                 me.down('#multipercent-' + item.get('id') + '-' + nb).add(
                                     [{
                                         xtype: 'sliderfield',

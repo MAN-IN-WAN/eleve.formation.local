@@ -67,7 +67,7 @@
 
 /*Muliples pourcentages*/
 .x-form-label.multipercentlabel{
-    color: inherit;
+    color: inherit !important;
 }
 
 
