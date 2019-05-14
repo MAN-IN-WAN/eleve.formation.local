@@ -65,6 +65,7 @@ Ext.define('eleve.view.Question', {
                         scrollable: true,
                         style: 'margin-top: 10px;text-align:center;',
                         action: 'questionImage',
+                        cls: 'questionImage',
                         html: ''
                     },
                     {
@@ -193,7 +194,7 @@ Ext.define('eleve.view.Question', {
                             temp.hidden = true;
                         }
                         me.down('[action=questionContainer]').add(temp);
-                        Ext.getCmp('texte-'+item.get('id')).focus();
+                        //Ext.getCmp('texte-'+item.get('id')).focus();
                         break;
                     case "4": //Booleen
                         /*me.down('[action=questionContainer]').add({
