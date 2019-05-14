@@ -174,12 +174,16 @@ Ext.define('eleve.view.Question', {
                         });
                         break;
                     case "3": //Texte
+                        var params = item.get('Parametres');
                         var temp = {
                             xtype: 'textareafield',
                             labelAlign: 'top',
                             id: 'texte-'+item.get('id'),
                             label:item.get('Nom')
                         };
+                        if(params != null && params.Couleur != undefined){
+                            temp.style = {border:"3px solid "+params.Couleur};
+                        }
                         if (item.get('AfficheOui')){
                             temp.action = 'AfficheOui';
                             temp.hidden = true;

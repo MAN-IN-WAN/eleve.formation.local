@@ -140,5 +140,6 @@
 
 .x-form-fieldset.cerclescore-fieldset .x-form-fieldset-inner{
     border-color: inherit;
+    border-width: 3px;
 }
 
