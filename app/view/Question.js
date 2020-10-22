@@ -16,7 +16,11 @@ Ext.define('eleve.view.Question', {
             {
                 docked: 'top',
                 xtype: 'titlebar',
-                title: eleve.utils.Config.getApplicationName()
+                title: eleve.utils.Config.getApplicationName(),
+                style: {
+                    'background-color' :'#388e6b',
+                    'background-image' : 'linear-gradient(to top, #f2fafd, #68c5b6 10%, #f2fafd 98%)'
+                }
             },
             {
                 action: 'panneauConfirm',
@@ -165,13 +169,23 @@ Ext.define('eleve.view.Question', {
                         });
                         break;
                     case "2": //Echelle
+                        var params = item.get('Parametres');
+                        var min = 0;
+                        var max = 5;
+                        if(params != null && params.min != undefined){
+                            min = params.min;
+                        }
+                        if(params != null && params.max != undefined){
+                            max = params.max;
+                        }
                         me.down('[action=questionContainer]').add({
                             xtype: 'sliderfield',
-                            maxValue: 5,
+                            minValue: min,
+                            maxValue: max,
                             labelAlign: 'top',
                             id: 'echelle-'+item.get('id'),
                             label:item.get('Nom'),
-                            html: '<table width="100%"><tr><td width="14%" align="center">1</td><td width="14%" align="center">2</td><td width="14%" align="center">3</td><td width="14%" align="center">4</td><td width="14%" align="center">5</td><td width="14%" align="center">6</td></tr></table>'
+                            html: '<div style="padding:0 15px;"><table width="100%" style="background: linear-gradient(to right, rgba(255,0,0,0.5),rgba(255,255,255,0.5), rgba(0,255,0,0.5));"><tr><td width="20%" align="left">1</td><td width="20%" align="left">2</td><td width="20%" align="left">3</td><td width="20%" align="left">4</td><td width="10%" align="left">5</td><td width="10%" align="right">6</td></tr></table></div>'
                         });
                         break;
                     case "3": //Texte
@@ -271,6 +285,12 @@ Ext.define('eleve.view.Question', {
                         });
                         break;
                     case "5": //Sélection
+                        var params = item.get('Parametres');
+                        var style ='';
+                        if(params != null && params.style != undefined){
+                            style = params.style;
+                        }
+
                         var tqv = Ext.getStore('TypeQuestionValeurs');
                         tqv.filter('TypeQuestionId',item.get('id'));
                         var opts= [];
@@ -285,7 +305,7 @@ Ext.define('eleve.view.Question', {
                         });
                         if (item.get('Nom'))
                             me.down('[action=questionContainer]').add({
-                               html: '<h4>'+item.get('Nom')+'</h4>'
+                               html: '<h4 style="'+style+'">'+item.get('Nom')+'</h4>'
                             });
                         me.down('[action=questionContainer]').add({
                             xtype: 'fieldset',

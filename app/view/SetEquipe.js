@@ -23,7 +23,7 @@ Ext.define('eleve.view.SetEquipe', {
                 title: '',
                 style: {
                     'background-color' :'#388e6b',
-                    'background-image': 'linear-gradient(top, #42b18a,#1676b9 3%,#388e6b) !important'
+                    'background-image' : 'linear-gradient(to top, #f2fafd, #68c5b6 10%, #f2fafd 98%)'
                 }
             },
             {

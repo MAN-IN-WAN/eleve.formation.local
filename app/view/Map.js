@@ -12,7 +12,11 @@ Ext.define('eleve.view.Map', {
             {
                 docked: 'top',
                 xtype: 'titlebar',
-                title: eleve.utils.Config.getAppTitle()
+                title: eleve.utils.Config.getAppTitle(),
+                style: {
+                    'background-color' :'#388e6b',
+                    'background-image' : 'linear-gradient(to top, #f2fafd, #68c5b6 10%, #f2fafd 98%)'
+                }
             },
             {
                 xtype: 'panel',
