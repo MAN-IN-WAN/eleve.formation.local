@@ -1,2 +1,2 @@
 // @tag full-page
-// @require /home/mogus/Dev/eleve.formation.local/app.js
+// @require /home/engu3/eleve.formation.local/app.js

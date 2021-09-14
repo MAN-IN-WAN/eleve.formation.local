@@ -172,12 +172,18 @@ Ext.define('eleve.view.Question', {
                         var params = item.get('Parametres');
                         var min = 0;
                         var max = 5;
+                        var style = '';
+
                         if(params != null && params.min != undefined){
                             min = params.min;
                         }
                         if(params != null && params.max != undefined){
                             max = params.max;
                         }
+                        if(params != null && params.couleur != undefined){
+                            style += 'border-left: 20px solid '+params.couleur+';';
+                        }
+
                         me.down('[action=questionContainer]').add({
                             xtype: 'sliderfield',
                             minValue: min,
@@ -185,7 +191,8 @@ Ext.define('eleve.view.Question', {
                             labelAlign: 'top',
                             id: 'echelle-'+item.get('id'),
                             label:item.get('Nom'),
-                            html: '<div style="padding:0 15px;"><table width="100%" style="background: linear-gradient(to right, rgba(255,0,0,0.5),rgba(255,255,255,0.5), rgba(0,255,0,0.5));"><tr><td width="20%" align="left">1</td><td width="20%" align="left">2</td><td width="20%" align="left">3</td><td width="20%" align="left">4</td><td width="10%" align="left">5</td><td width="10%" align="right">6</td></tr></table></div>'
+                            style: style,
+                            html: '<div style="padding:0 15px;"><table width="100%" style="background: linear-gradient(to right, rgba(255,0,0,0.5),rgba(255,255,255,0.5), rgba(0,255,0,0.5));"><tr><td width="33%" align="left">1</td><td width="33%" align="left">2</td><td width="20%" align="left">3</td><td width="20%" align="right">4</td></tr></table></div>'
                         });
                         break;
                     case "3": //Texte
@@ -287,20 +294,25 @@ Ext.define('eleve.view.Question', {
                     case "5": //Sélection
                         var params = item.get('Parametres');
                         var style ='';
+                        var labelBorderColor = null;
                         if(params != null && params.style != undefined){
                             style = params.style;
+                        }
+                        if(params != null && params.labelBorderColor != undefined){
+                            labelBorderColor = params.labelBorderColor;
                         }
 
                         var tqv = Ext.getStore('TypeQuestionValeurs');
                         tqv.filter('TypeQuestionId',item.get('id'));
+                        var tvId = item.get('id');
                         var opts= [];
                         console.log(tqv);
                         tqv.each(function (item, index){
                             console.log(item);
                             opts.push({
-                                name: 'question_'+record.get('id'),
+                                name: 'question_'+record.get('id')+'_'+tvId,
                                 value: item.get('id'),
-                                label: ((item.get('Image').length)?'<img style="float: left;margin:0 20px;" src="' + _prefixDomain + '/'+item.get('Image')+'" />'+item.get('Valeur'):item.get('Valeur'))
+                                label: (labelBorderColor?'<span style="border:10px solid'+labelBorderColor+'; display: inline-block; margin-right: 10px;"></span>':'')+((item.get('Image').length)?'<img style="float: left;margin:0 20px;" src="' + _prefixDomain + '/'+item.get('Image')+'" />'+item.get('Valeur'):item.get('Valeur'))
                             });
                         });
                         if (item.get('Nom'))

@@ -78,26 +78,10 @@
         }
     ],
 
-    /**
-     * Used to automatically generate cache.manifest (HTML 5 application cache manifest) file when you build
-     */
-    "appCache": {
-        /**
-         * List of items in the CACHE MANIFEST section
-         */
-        "cache": [
-            "index.html"
-        ],
-        /**
-         * List of items in the NETWORK section
-         */
-        "network": [
-            "*"
-        ],
-        /**
-         * List of items in the FALLBACK section
-         */
-        "fallback": []
+    "output": {
+        appCache: {
+            "enable": false
+        }
     },
 
     /**

@@ -29036,20 +29036,23 @@ Ext.cmd.derive('eleve.controller.Equipe', Ext.app.Controller, {config:{viewCache
     Ext.Msg.alert("Erreur lors de la définiton de l'équipe et/ou de la région", "Veuillez vérifier votre numéro d'équipe / région séléctionnée");
   }
 }}, 0, 0, 0, 0, 0, 0, [eleve.controller, 'Equipe'], 0);
-Ext.cmd.derive('eleve.view.Wait', Ext.Panel, {config:{title:'Chargement des données', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getAppTitle()}, {html:'\x3ci class\x3d"fa fa-users fa-6"\x3e\x3c/i\x3e', style:'position:absolute; z-index:1; top:35%; left:50%;', action:'mapMarker'}, {width:'100%', style:'position:absolute;top:35%;z-index:1;text-align: center;', action:'loadingText', html:''}], listeners:{painted:function() {
+Ext.cmd.derive('eleve.view.Wait', Ext.Panel, {config:{title:'Chargement des données', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getAppTitle(), style:{'background-color':'#388e6b', 'background-image':'linear-gradient(to top, #f2fafd, #68c5b6 10%, #f2fafd 98%)'}}, {html:'\x3ci class\x3d"fa fa-users fa-6"\x3e\x3c/i\x3e', style:'position:absolute; z-index:1; top:35%; left:50%;', action:'mapMarker'}, {width:'100%', style:'position:absolute;top:35%;z-index:1;text-align: center;', 
+action:'loadingText', html:''}], listeners:{painted:function() {
   if (eleve.utils.Config.getCurrentQuestion() == 1) {
     this.down('[action\x3dloadingText]').setHtml('\x3ch1\x3eBienvenue\x3c/h1\x3e\x3cdiv class\x3d"filler"\x3e\x3cp class\x3d"filler-desc"\x3eL\'étape est actuellement verrouillée. Lorsqu\'elle sera débloquée par votre animateur la transition se fera automatiquement. \x3cbr\x3e Il n\'est pas nécessaire de rafraîchir la page.\x3c/p\x3e\x3cp class\x3d"filler-image"\x3e\x3cimg src\x3d"resources/img/spinner.gif"\x3e\x3c/pclass\x3e\x3c/div\x3e');
   } else {
     this.down('[action\x3dloadingText]').setHtml('\x3ch1\x3eRetournez au JuSt Mat\x3c/h1\x3e\x3cdiv class\x3d"filler"\x3e\x3cp class\x3d"filler-desc"\x3eL\'étape est actuellement verrouillée. Lorsqu\'elle sera débloquée par votre animateur la transition se fera automatiquement. \x3cbr\x3e Il n\'est pas nécessaire de rafraîchir la page.\x3c/p\x3e\x3cp class\x3d"filler-image"\x3e\x3cimg src\x3d"resources/img/spinner.gif"\x3e\x3c/pclass\x3e\x3c/div\x3e');
   }
 }}}}, 0, ['loading'], ['component', 'container', 'panel', 'loading'], {'component':true, 'container':true, 'panel':true, 'loading':true}, ['widget.loading'], 0, [eleve.view, 'Wait'], 0);
-Ext.cmd.derive('eleve.view.Loading', Ext.Panel, {config:{title:'Chargement des données', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getAppTitle()}, {width:'100%', style:'top: 45%;text-align: center;position:absolute;z-index:1', action:'loadingText', html:'\x3ch1\x3eChargement ...\x3c/h1\x3e'}]}}, 0, ['loading'], ['component', 'container', 'panel', 'loading'], {'component':true, 'container':true, 'panel':true, 'loading':true}, ['widget.loading'], 0, [eleve.view, 'Loading'], 0);
-Ext.cmd.derive('eleve.view.SetEquipe', Ext.form.Panel, {config:{items:[{docked:'top', xtype:'titlebar', title:'', style:{'background-color':'#388e6b', 'background-image':'linear-gradient(top, #42b18a,#1676b9 3%,#388e6b) !important'}}, {xtype:'fieldset', action:'equipefieldset', instructions:'', defaults:{labelWidth:'40%'}, items:[{xtype:'textfield', name:'lastname', label:'Equipe', cls:'ypm-input', clearIcon:false, placeHolder:'Numéro de table', autoCapitalize:false, required:true, id:'equipeinput'}, 
+Ext.cmd.derive('eleve.view.Loading', Ext.Panel, {config:{title:'Chargement des données', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getAppTitle(), style:{'background-color':'#388e6b', 'background-image':'linear-gradient(to top, #f2fafd, #68c5b6 10%, #f2fafd 98%)'}}, {width:'100%', style:'top: 45%;text-align: center;position:absolute;z-index:1', action:'loadingText', html:'\x3ch1\x3eChargement ...\x3c/h1\x3e'}]}}, 0, ['loading'], ['component', 'container', 'panel', 'loading'], 
+{'component':true, 'container':true, 'panel':true, 'loading':true}, ['widget.loading'], 0, [eleve.view, 'Loading'], 0);
+Ext.cmd.derive('eleve.view.SetEquipe', Ext.form.Panel, {config:{items:[{docked:'top', xtype:'titlebar', title:'', style:{'background-color':'#388e6b', 'background-image':'linear-gradient(to top, #f2fafd, #68c5b6 10%, #f2fafd 98%)'}}, {xtype:'fieldset', action:'equipefieldset', instructions:'', defaults:{labelWidth:'40%'}, items:[{xtype:'textfield', name:'lastname', label:'Equipe', cls:'ypm-input', clearIcon:false, placeHolder:'Numéro de table', autoCapitalize:false, required:true, id:'equipeinput'}, 
 {xtype:'button', action:'validerequipe', text:'Enregistrer', cls:'ypm-button valider-inscription'}]}], listeners:{initialize:function() {
   console.log('init now');
   this.down('[xtype\x3dtitlebar]').setTitle(eleve.utils.Config.getApplicationName());
 }}}}, 0, ['setteam'], ['component', 'container', 'panel', 'formpanel', 'setteam'], {'component':true, 'container':true, 'panel':true, 'formpanel':true, 'setteam':true}, ['widget.setteam'], 0, [eleve.view, 'SetEquipe'], 0);
-Ext.cmd.derive('eleve.view.Map', Ext.Panel, {config:{title:'Carte Pédagogique', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getAppTitle()}, {xtype:'panel', width:'100%', height:'100%', action:'containerMap', items:[{html:'\x3ci class\x3d"fa fa-map-marker fa-6"\x3eVous êtes ici\x3c/i\x3e', style:'position:absolute; z-index:10000; top:50%; left:50%;', action:'mapMarker'}, {xtype:'image', action:'map'}]}], listeners:{initialize:function() {
+Ext.cmd.derive('eleve.view.Map', Ext.Panel, {config:{title:'Carte Pédagogique', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getAppTitle(), style:{'background-color':'#388e6b', 'background-image':'linear-gradient(to top, #f2fafd, #68c5b6 10%, #f2fafd 98%)'}}, {xtype:'panel', width:'100%', height:'100%', action:'containerMap', items:[{html:'\x3ci class\x3d"fa fa-map-marker fa-6"\x3eVous êtes ici\x3c/i\x3e', style:'position:absolute; z-index:10000; top:50%; left:50%;', action:'mapMarker'}, 
+{xtype:'image', action:'map'}]}], listeners:{initialize:function() {
   console.log('init map');
   this.down('[xtype\x3dtitlebar]').setTitle(eleve.utils.Config.getApplicationName());
 }}}, setPosition:function(position) {
@@ -29080,7 +29083,8 @@ Ext.cmd.derive('eleve.view.Map', Ext.Panel, {config:{title:'Carte Pédagogique',
     me.down('[action\x3dmapMarker]').fireEvent('tap');
   });
 }}, 0, ['sessionmap'], ['component', 'container', 'panel', 'sessionmap'], {'component':true, 'container':true, 'panel':true, 'sessionmap':true}, ['widget.sessionmap'], 0, [eleve.view, 'Map'], 0);
-Ext.cmd.derive('eleve.view.Question', Ext.Panel, {config:{title:'Carte Pédagogique', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getApplicationName()}, {action:'panneauConfirm', xtype:'actionsheet', text:'Etes-vous sûr ?', showAnimation:null, hideAnimation:null, hideOnMaskTap:true, hidden:true, items:[{text:'Êtes-vous sûr ?     OUI', ui:'confirm', action:'confirm', handler:function() {
+Ext.cmd.derive('eleve.view.Question', Ext.Panel, {config:{title:'Carte Pédagogique', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getApplicationName(), style:{'background-color':'#388e6b', 'background-image':'linear-gradient(to top, #f2fafd, #68c5b6 10%, #f2fafd 98%)'}}, {action:'panneauConfirm', xtype:'actionsheet', text:'Etes-vous sûr ?', showAnimation:null, hideAnimation:null, hideOnMaskTap:true, hidden:true, items:[{text:'Êtes-vous sûr ?     OUI', ui:'confirm', action:'confirm', 
+handler:function() {
   this.up('[xtype\x3dquestion]').down('[action\x3dscrollableContainer]').getScrollable().getScroller().scrollTo(0, 0, true);
   this.up('[action\x3dpanneauConfirm]').hide();
 }}, {ui:'decline', text:'Êtes-vous sûr ?     NON', handler:function() {
@@ -29129,7 +29133,20 @@ ui:'decline'}]}]}, setRecord:function(record) {
           $('.dial').knob({'width':'100%', 'min':0, 'max':100, 'angleOffset':-90, 'angleArc':180, 'value':0, 'thickness':0.6, 'fgColor':'#4d4d4d', 'bgColor':'transparent'});
           break;
         case '2':
-          me.down('[action\x3dquestionContainer]').add({xtype:'sliderfield', maxValue:5, labelAlign:'top', id:'echelle-' + item.get('id'), label:item.get('Nom'), html:'\x3ctable width\x3d"100%"\x3e\x3ctr\x3e\x3ctd width\x3d"14%" align\x3d"center"\x3e1\x3c/td\x3e\x3ctd width\x3d"14%" align\x3d"center"\x3e2\x3c/td\x3e\x3ctd width\x3d"14%" align\x3d"center"\x3e3\x3c/td\x3e\x3ctd width\x3d"14%" align\x3d"center"\x3e4\x3c/td\x3e\x3ctd width\x3d"14%" align\x3d"center"\x3e5\x3c/td\x3e\x3ctd width\x3d"14%" align\x3d"center"\x3e6\x3c/td\x3e\x3c/tr\x3e\x3c/table\x3e'});
+          var params = item.get('Parametres');
+          var min = 0;
+          var max = 5;
+          var style = '';
+          if (params != null && params.min != undefined) {
+            min = params.min;
+          }
+          if (params != null && params.max != undefined) {
+            max = params.max;
+          }
+          if (params != null && params.couleur != undefined) {
+            style += 'border-left: 20px solid ' + params.couleur + ';';
+          }
+          me.down('[action\x3dquestionContainer]').add({xtype:'sliderfield', minValue:min, maxValue:max, labelAlign:'top', id:'echelle-' + item.get('id'), label:item.get('Nom'), style:style, html:'\x3cdiv style\x3d"padding:0 15px;"\x3e\x3ctable width\x3d"100%" style\x3d"background: linear-gradient(to right, rgba(255,0,0,0.5),rgba(255,255,255,0.5), rgba(0,255,0,0.5));"\x3e\x3ctr\x3e\x3ctd width\x3d"33%" align\x3d"left"\x3e1\x3c/td\x3e\x3ctd width\x3d"33%" align\x3d"left"\x3e2\x3c/td\x3e\x3ctd width\x3d"20%" align\x3d"left"\x3e3\x3c/td\x3e\x3ctd width\x3d"20%" align\x3d"right"\x3e4\x3c/td\x3e\x3c/tr\x3e\x3c/table\x3e\x3c/div\x3e'});
           break;
         case '3':
           var params = item.get('Parametres');
@@ -29171,16 +29188,26 @@ ui:'decline'}]}]}, setRecord:function(record) {
           }}}, {xtype:'radiofield', name:'boolean_' + item.get('id'), value:'2', cls:'booleen-non', label:'Non'}]});
           break;
         case '5':
+          var params = item.get('Parametres');
+          var style = '';
+          var labelBorderColor = null;
+          if (params != null && params.style != undefined) {
+            style = params.style;
+          }
+          if (params != null && params.labelBorderColor != undefined) {
+            labelBorderColor = params.labelBorderColor;
+          }
           var tqv = Ext.getStore('TypeQuestionValeurs');
           tqv.filter('TypeQuestionId', item.get('id'));
+          var tvId = item.get('id');
           var opts = [];
           console.log(tqv);
           tqv.each(function(item, index) {
             console.log(item);
-            opts.push({name:'question_' + record.get('id'), value:item.get('id'), label:item.get('Image').length ? '\x3cimg style\x3d"float: left;margin:0 20px;" src\x3d"' + _prefixDomain + '/' + item.get('Image') + '" /\x3e' + item.get('Valeur') : item.get('Valeur')});
+            opts.push({name:'question_' + record.get('id') + '_' + tvId, value:item.get('id'), label:(labelBorderColor ? '\x3cspan style\x3d"border:10px solid' + labelBorderColor + '; display: inline-block; margin-right: 10px;"\x3e\x3c/span\x3e' : '') + (item.get('Image').length ? '\x3cimg style\x3d"float: left;margin:0 20px;" src\x3d"' + _prefixDomain + '/' + item.get('Image') + '" /\x3e' + item.get('Valeur') : item.get('Valeur'))});
           });
           if (item.get('Nom')) {
-            me.down('[action\x3dquestionContainer]').add({html:'\x3ch4\x3e' + item.get('Nom') + '\x3c/h4\x3e'});
+            me.down('[action\x3dquestionContainer]').add({html:'\x3ch4 style\x3d"' + style + '"\x3e' + item.get('Nom') + '\x3c/h4\x3e'});
           }
           me.down('[action\x3dquestionContainer]').add({xtype:'fieldset', id:'selection-' + item.get('id'), defaults:{xtype:'radiofield', labelWidth:'70%'}, items:opts});
           break;
@@ -29665,7 +29692,8 @@ ui:'decline'}]}]}, setRecord:function(record) {
 }, resetView:function() {
   this.down('[action\x3dquestionContainer]').removeAll();
 }}, 0, ['question'], ['component', 'container', 'panel', 'question'], {'component':true, 'container':true, 'panel':true, 'question':true}, ['widget.question'], 0, [eleve.view, 'Question'], 0);
-Ext.cmd.derive('eleve.view.Fin', Ext.Panel, {config:{title:'Fin', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getAppTitle()}, {width:'100%', style:'margin-top: 200px;text-align: center;', html:"\x3ch1\x3eFin de l'animation interactive\x3c/h1\x3e\x3ch2\x3eNous vous remercions pour votre participation.\x3c/h2\x3e"}]}}, 0, ['fin'], ['component', 'container', 'panel', 'fin'], {'component':true, 'container':true, 'panel':true, 'fin':true}, ['widget.fin'], 0, [eleve.view, 'Fin'], 0);
+Ext.cmd.derive('eleve.view.Fin', Ext.Panel, {config:{title:'Fin', items:[{docked:'top', xtype:'titlebar', title:eleve.utils.Config.getAppTitle(), style:{'background-color':'#388e6b', 'background-image':'linear-gradient(to top, #f2fafd, #68c5b6 10%, #f2fafd 98%)'}}, {width:'100%', style:'margin-top: 200px;text-align: center;', html:"\x3ch1\x3eFin de l'animation interactive\x3c/h1\x3e\x3ch2\x3eNous vous remercions pour votre participation.\x3c/h2\x3e"}]}}, 0, ['fin'], ['component', 'container', 'panel', 
+'fin'], {'component':true, 'container':true, 'panel':true, 'fin':true}, ['widget.fin'], 0, [eleve.view, 'Fin'], 0);
 Ext.application({name:'eleve', models:['Categorie', 'Map', 'Question', 'TypeQuestion', 'TypeQuestionValeur', 'TypeReponse', 'Region'], stores:['Categories', 'Maps', 'Questions', 'TypeQuestions', 'TypeQuestionValeurs', 'TypeReponses', 'Regions'], views:['Loading', 'SetEquipe', 'Map', 'Question', 'Fin', 'Wait'], controllers:['Main', 'Equipe'], icon:{57:'resources/icons/Icon.png', 72:'resources/icons/Icon~ipad.png', 114:'resources/icons/Icon@2x.png', 144:'resources/icons/Icon~ipad@2x.png'}, isIconPrecomposed:true, 
 startupImage:{'320x460':'resources/startup/320x460.jpg', '640x920':'resources/startup/640x920.png', '768x1004':'resources/startup/768x1004.png', '748x1024':'resources/startup/748x1024.png', '1536x2008':'resources/startup/1536x2008.png', '1496x2048':'resources/startup/1496x2048.png'}, launch:function() {
   localStorage.clear();
